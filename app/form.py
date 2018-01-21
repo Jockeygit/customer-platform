@@ -27,7 +27,9 @@ class loginForm(FlaskForm):
 class registerForm(FlaskForm):
 
     # 用户名
-    username = StringField('用户名', validators=[DataRequired(), length(1, 20, message='长度位于1~20之间')])
+    username = StringField('用户名', validators=[DataRequired(),
+                length(1, 20, message='长度位于1~20之间')],render_kw={'placeholder':'用户名支持中英文'})
     # 密码
-    password = StringField('密码', validators=[DataRequired(), length(1, 10, message='长度位于1~10之间')])
+    password = StringField('密码', validators=[DataRequired(),
+                length(1, 10, message='长度位于1~10之间')],render_kw={'placeholder':'密码支持中英文'})
     submit = SubmitField('注册')
