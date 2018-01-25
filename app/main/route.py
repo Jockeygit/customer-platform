@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------
-#   File Name :       views
+#   File Name :       route
 #   Description :     添加描述信息
 #   Author :          zhoujie
-#   Created:          2018/1/12  14:33
+#   Created:          2018/1/21  16:43 
 # -------------------------------------------------
 #   Change Activity:
-#                     2018/1/12
+#                     2018/1/21
 # -------------------------------------------------
 from flask import render_template
-#from app.auth.route import view
+from app.main import view
 
 
-#@view.route('/success')
-def success():
-    return render_template('ui-elements.html')
+# 首页
+@view.route('/index')
+def index():
+    return render_template('index.html')
+
 
 
 
