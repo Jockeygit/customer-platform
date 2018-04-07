@@ -1,38 +1,54 @@
-<!DOCTYPE html>
-{% import "bootstrap/wtf.html" as wtf %}
-{% extends "bootstrap/base.html" %}
+{% extends 'base.html' %}
 
-{% block navbar %}
-<div class="navbar navbar-inverse" role="navigation">
-    <div class="container">
-        <div class="navbar-collapse collapse">
-            <div class="navbar-header"> <a class="navbar-brand navbar-left">客户管理平台</a> </div>
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="{{ url_for('auth.login') }}">登录</a></li>
-            </ul>
-        </div>
-    </div>
-</div>
+{% block title %}
+    <title>注册</title>
+{% endblock %}
+
+{% block nav %}
 {% endblock %}
 
 {% block content %}
-<div class="container">
-
-    {% block page_content %}{% endblock %}
-</div>
-
-<div class="container col-lg-3 col-lg-offset-3">
-<div class="page-header">
- <h3>用户注册</h3>
-</div>
-    <form action="/register" method="post">
-        {%for message in get_flashed_messages()%}
+<form class="form-horizontal" enctype="multipart/form-data" action="" method="post">
+    <div class="login">
+        <h1>客户管理系统</a></h1>
+        <div class="login-bottom">
+            <h2>Register</h2>
+            {%for message in get_flashed_messages()%}
             <div class="alert alert-warning">
                 <button type="button" class="close" data-dismiss="alert">&times;</button>
                 {{message}}
             </div>
-        {%endfor%}
-    {{ wtf.quick_form(form) }}
-    </form>
-</div>
+            {%endfor%}
+            <div class="col-md-6">
+                <div class="login-mail">
+                    {#加了required以后会要求必须填写字段#}
+                    {{form.username(placeholder="请输入你的用户名",required="")}}
+                    <i class="fa fa-user"></i>
+                </div>
+                <div class="login-mail">
+                    {{form.password(placeholder="请输入密码",required="")}}
+                    <i class="fa fa-lock"></i>
+                </div>
+                <div class="login-mail">
+                    {{form.password_confirm(placeholder="请再次输入密码",required="")}}
+                    <i class="fa fa-lock"></i>
+                </div>
+            </div>
+            <div class="col-md-6 login-do">
+                <label class="hvr-shutter-in-horizontal login-sub">
+                    {{form.submit()}}
+{#                    <input type="submit" value="注册" onclick="alert('注册成功！')">#}
+                </label>
+                <p>已经注册</p>
+                <a href="{{ url_for('auth.login') }}" class="hvr-shutter-in-horizontal">登录</a>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</form>
+    <!---->
+    <div class="copy-right">
+        <p>&copy; 2017 All Rights Reserved</p>
+    </div>
 {% endblock %}
+

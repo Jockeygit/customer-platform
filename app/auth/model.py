@@ -12,6 +12,7 @@
 from flask_login import UserMixin
 from app import db
 
+
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
@@ -22,3 +23,5 @@ class User(UserMixin, db.Model):
         self.username = username
         self.password = password
 
+if __name__ == '__main__':
+     db.create_all()

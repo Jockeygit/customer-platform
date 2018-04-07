@@ -10,9 +10,18 @@
 #                     2018/1/12
 # -------------------------------------------------
 #!flask/bin/python
+import os, sys
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from app import app
+# from flask.ext.script import Manager, Server
+from flask_script import Manager, Server
 
-if __name__=='__main__':
-    app.debug = True
-    app.run()
+from app import create_app
+app = create_app(os.getenv('config') or 'default')
+
+
+manager = Manager(app)
+
+
+if __name__ == "__main__":
+    manager.run()

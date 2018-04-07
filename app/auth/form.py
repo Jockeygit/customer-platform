@@ -29,5 +29,6 @@ class registerForm(FlaskForm):
     # 用户名
     username = StringField('用户名', validators=[DataRequired(), length(1, 20, message='长度位于1~20之间')])
     # 密码
-    password = StringField('密码', validators=[DataRequired(), length(1, 10, message='长度位于1~10之间')])
+    password = StringField('密码', validators=[PasswordField, length(1, 10, message='长度位于1~10之间')])
+    password_confirm = StringField('确认密码', validators=[PasswordField, length(1, 10, message='长度位于1~10之间')])
     submit = SubmitField('注册')

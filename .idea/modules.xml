@@ -3,8 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/customer-platform.iml" filepath="$PROJECT_DIR$/.idea/customer-platform.iml" />
-      <module fileurl="file://$USER_HOME$/PycharmProjects/customer_management_platform/.idea/customer_management_platform.iml" filepath="$USER_HOME$/PycharmProjects/customer_management_platform/.idea/customer_management_platform.iml" />
-      <module fileurl="file://$USER_HOME$/Downloads/microblog-master/.idea/microblog-master.iml" filepath="$USER_HOME$/Downloads/microblog-master/.idea/microblog-master.iml" />
     </modules>
   </component>
 </project>

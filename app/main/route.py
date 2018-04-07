@@ -18,6 +18,11 @@ from app.main import view
 def index():
     return render_template('index.html')
 
+# 客户
+@view.route('/customer')
+def customer():
+    return render_template('customer.html')
+
 
 
 
