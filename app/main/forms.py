@@ -49,6 +49,8 @@ class contractFrom(FlaskForm):
 
     expiryDate = DateField('到期日', default='', validators=[DataRequired()], format='%Y/%m/%d')
 
+    submit = SubmitField('保存')
+
     # 初始化服务项目下拉框
     def __init__(self, *args, **kwargs):
         super(contractFrom, self).__init__(*args, **kwargs)
@@ -65,10 +67,27 @@ class chargeFrom(FlaskForm):
     description = StringField('说明', validators=[length(1, 50, message='说明字数不超过50')],
                     render_kw={'placeholder': '请输入说明'})
 
-
-# 更新部门
-
+    submit = SubmitField('确定')
 
 
+# 新建/更新部门
+class departmentFrom(FlaskForm):
+    name = StringField('部门名称', validators=[length(1, 10, message='部门名称字数不超过10')],
+                              render_kw={'placeholder': '请输入名称'})
+
+    director = SelectField('部门主管', coerce=int, validators=[DataRequired()])
+
+    submit = SubmitField('保存')
+
+    # 初始化部门主管下拉框
+    def __init__(self, *args, **kwargs):
+        super(departmentFrom, self).__init__(*args, **kwargs)
+        self.director.choices = [(employee.id, employee.name)
+                                for employee in Employee.query.order_by(Employee.name).all()]
+
+# 新建/编辑待办事项
+class todolistFrom(FlaskForm):
+    content = StringField('', validators=[length(1, 100, message='字数不超过100')],
+                              render_kw={'placeholder': '请输入内容'})
 
 

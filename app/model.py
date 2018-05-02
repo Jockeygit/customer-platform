@@ -63,6 +63,7 @@ class Agreement(db.Model):
     name = db.Column(db.String(15), nullable=False, unique=True)
     price = db.Column(db.Integer, nullable=False, unique=True)
 
+# 收费记录表
 class Record(db.Model):
     __tablename__ = 'record'
     id = db.Column(db.Integer, primary_key=True)
