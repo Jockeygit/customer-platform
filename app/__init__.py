@@ -16,10 +16,10 @@ from flask_login import LoginManager
 from config import config
 
 import sys
-reload(sys)
+#reload(sys)
 
 # python2 转换编码格式为 utf8（string and byte）
-sys.setdefaultencoding('utf8')
+#sys.setdefaultencoding('utf8')
 
 
 bootstrap = Bootstrap()
@@ -34,7 +34,9 @@ def create_app(config_name):
     config[config_name].init_app(app)
 
     bootstrap.init_app(app)
+
     db.init_app(app)
+
     login_manager.init_app(app)
 
     login_manager.login_view = "auth.login"  # 定义登录的视图

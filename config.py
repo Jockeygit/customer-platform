@@ -35,14 +35,19 @@ class Config:
 
 
 class DevelopmentConfig(Config):
-    print 'use dev config'
+    print('use dev config')
     DEBUG = True
     # 该配置为True,则每次请求结束都会自动commit数据库的变动
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     # 配置数据库地址(格式：mysql://username:password@hostname/database)
+   # SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
+    #    'mysql+pymysql://root:root@localhost:3306/cms_test'
+
+    # 配置数据库地址(格式：mysql://username:password@hostname/database)
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'mysql+pymysql://root:root@localhost:3306/cms_test'
+                              'mysql+pymysql://root:5185425mysql@localhost:3306/mydatabase'
+  #  app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:5185425mysql@localhost:3306/mydatabase'
 
 
 config = {

@@ -28,6 +28,7 @@ def login():
 
         user = User.query.filter_by(username=form.username.data).first() # 查询对应表里符合用户名的第一条数据
 
+        # print (str(User.query.filter_by(username=form.username.data).first()))
         if user is not None and user.password == form.password.data:
             flash('登录成功')
 
@@ -64,8 +65,8 @@ def register():
         if form.password.data != form.password_confirm.data:
             flash('两次密码输入不一致')
         user = User(username=form.username.data, password=form.password.data)
-        db.session.add(user)  # 插入数据
-        db.session.commit()  # 提交更改
+        db.session.add(user)  # 添加会话
+        db.session.commit()  # 提交会话
         flash('注册成功，请登录')
         return redirect(url_for('view.login'))
     return render_template('register.html', form = form)
