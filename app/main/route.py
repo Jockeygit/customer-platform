@@ -11,17 +11,21 @@
 # -------------------------------------------------
 from flask import render_template
 from app.main import view
+from flask_login import login_user, logout_user, login_required
 
 
 # 首页
 @view.route('/index')
+@login_required
 def index():
     return render_template('index.html')
 
 # 客户
 @view.route('/customer')
+@login_required
 def customer():
     return render_template('customer.html')
+
 
 
 

@@ -11,6 +11,7 @@
 # -------------------------------------------------
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))
+from datetime import timedelta
 
 
 class Config:
@@ -46,9 +47,10 @@ class DevelopmentConfig(Config):
 
     # 配置数据库地址(格式：mysql://username:password@hostname/database)
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-                              'mysql+pymysql://root:5185425mysql@localhost:3306/mydatabase'
-  #  app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:5185425mysql@localhost:3306/mydatabase'
+        'mysql+pymysql://root:123@localhost:3306/cms_test'
 
+    #设置静态资源缓存时间为1秒
+    SEND_FILE_MAX_AGE_DEFAULT = timedelta(seconds=1)
 
 config = {
     'development': DevelopmentConfig,

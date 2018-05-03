@@ -15,11 +15,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import config
 
-import sys
-#reload(sys)
 
-# python2 转换编码格式为 utf8（string and byte）
-#sys.setdefaultencoding('utf8')
 
 
 bootstrap = Bootstrap()

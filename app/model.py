@@ -1,16 +1,53 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------
-#   File Name :       model
-#   Description :     本系统所有数据表的模型
+#   File Name :       models
+#   Description :     添加描述信息
 #   Author :          zhoujie
-#   Created:          2018/4/28  15:46 
+#   Created:          2018/1/14  15:05 
 # -------------------------------------------------
 #   Change Activity:
-#                     2018/4/28
+#                     2018/1/14
 # -------------------------------------------------
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
-from datetime import datetime
+
+
+class User(UserMixin, db.Model):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(24), nullable=False, unique=True)
+    password = db.Column(db.String(24), nullable=False, unique=True)
+    password_hash = db.Column(db.String(128))
+    head_image = db.Column(db.String(252), nullable=True)
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
+    @property
+    def password(self):
+        """
+        设置密码的只写属性
+        """
+        raise AttributeError('password is not readable attribute')
+
+    @password.setter
+    def password(self, password):
+        """
+        为密码hash赋值
+        :param password: 原密码
+        """
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        """
+        对比输入密码与模型中的hash是否相等
+        :param password:需要对比的密码
+        :return:True即为密码正确
+        """
+        return check_password_hash(self.password_hash, password)
 
 # 员工表
 class Employee(db.Model):
@@ -87,3 +124,7 @@ class Todolist(db.Model):
     content = db.Column(db.Text, nullable=False, unique=False)
     # account_id引用employee表的id
     account_id = db.Column(db.Integer, nullable=False, unique=True)
+
+
+if __name__ == '__main__':
+    db.create_all()
