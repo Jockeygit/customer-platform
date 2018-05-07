@@ -11,16 +11,18 @@
 # -------------------------------------------------
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField, RadioField, DateField, IntegerField
+from wtforms import StringField, SubmitField, SelectField, RadioField, DateField, IntegerField, SelectMultipleField
 from wtforms.validators import DataRequired, length
-from app.model import Employee, Agreement
+from wtforms import ValidationError
+from app.model import Employee, Agreement, Customer
+from flask_login import current_user
 
 # 客户表单
 class customerForm(FlaskForm):
 
-    customername = StringField('客户名称', validators=[DataRequired(),
+    customername = StringField('客户名称', validators=[DataRequired('用户名称不能为空'),
                    length(1, 10, message='客户名称长度位于1~10之间')], render_kw={'placeholder':'请输入客户名称'})
-    type = RadioField('客户类型', validators=[DataRequired()], choice=[('0', '个人'), ('1', '企业')], default='1')
+    type = RadioField('客户类型', validators=[DataRequired()], choices=[('0', '个人'), ('1', '企业')], default='1')
     phone = StringField('电话', validators=[length(1, 15, message='电话长度位于1~15之间')],
                     render_kw={'placeholder':'请输入电话'})
     email = StringField('邮箱', validators=[length(1, 20, message='邮箱长度位于1~20之间')],
@@ -29,7 +31,7 @@ class customerForm(FlaskForm):
                     render_kw={'placeholder': '请输入地址'})
     manager = SelectField('客户经理', coerce=int, validators=[DataRequired()])
 
-    submit = SubmitField('保存')
+    submit_customer = SubmitField('保存')
 
     # 初始化客户经理下拉框
     def __init__(self, *args, **kwargs):
@@ -37,17 +39,45 @@ class customerForm(FlaskForm):
         self.manager.choices = [(employee.id, employee.name)
                                        for employee in Employee.query.order_by(Employee.name).all()]
 
+    def validate_customername(self, field):
+        if Customer.query.filter_by(name=field.data).first():
+            raise ValidationError('该客户已存在.')
+
     #    self.manager.default = [(Employee.id, Employee.name)
                    #        for customerForm in Employee.query.order_by(Employee.name).all()]
+
+
+class updateCustomerForm(FlaskForm):
+    customername = StringField('客户名称', validators=[DataRequired('用户名称不能为空'),
+                                                       length(1, 10, message='客户名称长度位于1~10之间')],
+                                   render_kw={'placeholder': '请输入客户名称'})
+    type = RadioField('客户类型', validators=[DataRequired()], choices=[('0', '个人'), ('1', '企业')], default='1')
+    phone = StringField('电话', validators=[length(1, 15, message='电话长度位于1~15之间')],
+                            render_kw={'placeholder': '请输入电话'})
+    email = StringField('邮箱', validators=[length(1, 20, message='邮箱长度位于1~20之间')],
+                            render_kw={'placeholder': '请输入邮箱'})
+    address = StringField('地址', validators=[length(1, 30, message='地址长度位于1~30之间')],
+                              render_kw={'placeholder': '请输入地址'})
+    manager = SelectField('客户经理', coerce=int, validators=[DataRequired()])
+
+    submit_customer = SubmitField('保存')
+
+    # 初始化客户经理下拉框
+    def __init__(self, *args, **kwargs):
+        super(updateCustomerForm, self).__init__(*args, **kwargs)
+        self.manager.choices = [(employee.id, employee.name)
+                                for employee in Employee.query.order_by(Employee.name).all()]
 
 # 创建/编辑合同
 class contractFrom(FlaskForm):
 
-    agreement = SelectField('服务项目', coerce=int, validators=[DataRequired()])
+    agreement = SelectMultipleField('服务项目', coerce=int, validators=[DataRequired()])
 
-    status = RadioField('状态', validators=[DataRequired()], choice=[('0', '未生效'), ('1', '生效')], default='1')
+    status = RadioField('状态', validators=[DataRequired()], choices=[('0', '未生效'), ('1', '生效')], default='1')
 
-    expiryDate = DateField('到期日', default='', validators=[DataRequired()], format='%Y/%m/%d')
+    startDate = DateField('开始日期', default='', validators=[DataRequired()], format='%Y-%m-%d')
+
+    expiryDate = DateField('到期日期', default='', validators=[DataRequired()], format='%Y-%m-%d')
 
     submit = SubmitField('保存')
 

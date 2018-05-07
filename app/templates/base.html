@@ -39,7 +39,7 @@
                 <a class="navbar-brand" href="{{ url_for('main.index') }}"><b>客户</b>管理平台</a>
             </div>
 
-            <ul class="nav navbar-top-links navbar-right">
+            <ul class="nav navbar-top-links navbar-right" style="padding-right: 20px;">
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
                         <i class="fa fa-envelope fa-fw"></i> <i class="fa fa-caret-down"></i>
@@ -232,15 +232,20 @@
                 <!-- /.dropdown -->
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
-                        <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+                        {% if current_user.head_image%}
+                            <img   src="{{current_user.head_image}}" style="height:50px;width:50px">
+                        {%else%}
+                            <img src="/static/assets/img/0.jpg" style="height:30px;width:30px" class="img-circle">
+                        {%endif%}
+                        <i class="fa fa-caret-down"></i>
                     </a>
                     <ul class="dropdown-menu dropdown-user">
-                        <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
+                        <li><a href="#"><i class="fa fa-user fa-fw"></i> 个人设置</a>
                         </li>
-                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
+                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> 部门设置</a>
                         </li>
                         <li class="divider"></li>
-                        <li><a href="#"><i class="fa fa-sign-out fa-fw"></i> 注销 </a>
+                        <li><a href="#" data-toggle="modal" data-target="#exitModal"><i class="fa fa-sign-out fa-fw" ></i> 注销 </a>
                         </li>
                     </ul>
                     <!-- /.dropdown-user -->
@@ -252,7 +257,7 @@
         <nav class="navbar-default navbar-side" role="navigation">
             <div class="sidebar-collapse">
                 <ul class="nav" id="main-menu">
-
+                    {% block sidebar %}
                     <li>
                         <a class="active-menu" href="{{ url_for('main.index') }}"><i class="fa fa-dashboard"></i> 首页</a>
                     </li>
@@ -260,54 +265,25 @@
                         <a href="{{ url_for('main.customer') }}"><i class="fa fa-desktop"></i> 客户</a>
                     </li>
 					<li>
-                        <a href="chart.html"><i class="fa fa-bar-chart-o"></i> Charts</a>
-                    </li>
-                    <li>
-                        <a href="tab-panel.html"><i class="fa fa-qrcode"></i> Tabs & Panels</a>
-                    </li>
-
-                    <li>
-                        <a href="table.html"><i class="fa fa-table"></i> Responsive Tables</a>
-                    </li>
-                    <li>
-                        <a href="form.html"><i class="fa fa-edit"></i> Forms </a>
-                    </li>
-
-
-                    <li>
-                        <a href="#"><i class="fa fa-sitemap"></i> Multi-Level Dropdown<span class="fa arrow"></span></a>
+                        <a href="#"><i class="fa fa-bar-chart-o"></i> 合同<span class="fa arrow"></span></a>
                         <ul class="nav nav-second-level">
                             <li>
-                                <a href="#">Second Level Link</a>
+                                <a href="{{ url_for('main.contact') }}">合同</a>
                             </li>
                             <li>
-                                <a href="#">Second Level Link</a>
-                            </li>
-                            <li>
-                                <a href="#">Second Level Link<span class="fa arrow"></span></a>
-                                <ul class="nav nav-third-level">
-                                    <li>
-                                        <a href="#">Third Level Link</a>
-                                    </li>
-                                    <li>
-                                        <a href="#">Third Level Link</a>
-                                    </li>
-                                    <li>
-                                        <a href="#">Third Level Link</a>
-                                    </li>
-
-                                </ul>
-
+                                <a href="#">收费记录</a>
                             </li>
                         </ul>
                     </li>
                     <li>
-                        <a href="empty.html"><i class="fa fa-fw fa-file"></i> Empty Page</a>
+                        <a href="table.html"><i class="fa fa-table"></i> 待办事项</a>
                     </li>
+                    <li>
+                        <a href="empty.html"><i class="fa fa-fw fa-file"></i> 工作报告</a>
+                    </li>
+                    {% endblock %}
                 </ul>
-
             </div>
-
         </nav>
         {% endblock %}
         <!-- /. NAV SIDE  -->
@@ -600,6 +576,23 @@
         </div>
         <!-- /. PAGE WRAPPER  -->
         {% endblock %}
+        {% block nav_modal %}
+        <div class="modal fade" id="exitModal" tabindex="-1" role="dialog" aria-labelledby="exitModalLabel" aria-hidden="true">
+            <div class="modal-dialog" style="width:350px">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>确定退出吗？</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <a href="{{ url_for('auth.logout') }}" class="btn btn-primary" role="button" data-dismiss="modal">确定</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
     </div>
     <!-- /. WRAPPER  -->
     <!-- JS Scripts-->
@@ -612,10 +605,8 @@
     <script src="static/assets/js/jquery.metisMenu.js"></script>
 
 
-    <!-- Custom Js -->
-    <script src="static/assets/js/custom-scripts.js"></script>
-
     {% block bottom_js %}
+    <script src="static/assets/js/custom-scripts.js"></script>
     {% endblock %}
 </body>
 

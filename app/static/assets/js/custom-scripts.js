@@ -198,8 +198,37 @@
     }
     // Initializing ///
 
-    $(document).ready(function () {
-        mainApp.initFunction();
-    });
+    //$(document).ready(function () {
+        //mainApp.initFunction();
+    //});
 
 }(jQuery));
+
+/*单选框*/
+(function( $ ){
+	$.fn.labelauty = function( options )
+	{
+		return this.each(function()
+		{
+			var $object = $( this );
+			var lable;
+
+            if( $object.is( ":checkbox" ) === false && $object.is( ":radio" ) === false )
+				return this;
+
+			lable = $object.next();
+            lable.css("margin-right","10px");
+			$object.addClass('labelauty');
+			$object.css("display", "none");
+			lable_text = lable.text();
+
+			block = '<span class="labelauty-unchecked-image"></span>' +
+					'<span class="labelauty-unchecked">' + lable_text + '</span>' +
+					'<span class="labelauty-checked-image"></span>' +
+					'<span class="labelauty-checked">' + lable_text + '</span>' ;
+
+			lable.html(block);
+		});
+	};
+
+}( jQuery ));

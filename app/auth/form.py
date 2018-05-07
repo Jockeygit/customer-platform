@@ -13,7 +13,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, length, EqualTo, Regexp
 from wtforms import ValidationError
-from ..model import User
+from ..model import User,Employee
 
 
 # 登录表单
@@ -44,6 +44,10 @@ class RegisterForm(FlaskForm):
     def validate_username(self, field):
         if User.query.filter_by(username=field.data).first():
             raise ValidationError('用户名已存在.')
+
+    def validate_realname(self, field):
+        if Employee.query.filter_by(name=field.data).first():
+            raise ValidationError('真实姓名已存在.请在姓名后加上个人标识')
 
 #修改个人资料
 class EditUserProfileFor(FlaskForm):

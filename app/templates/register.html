@@ -4,25 +4,39 @@
     <title>注册</title>
 {% endblock %}
 
+{% block wrapper %}
+<div id="wrapper_login">
+</div>
+{% endblock %}
+
 {% block nav %}
 {% endblock %}
 
 {% block content %}
-<form class="form-horizontal" enctype="multipart/form-data" action="" method="post">
     <div class="login">
-        <h1>客户管理系统</a></h1>
+        <h1>客户管理系统</h1>
         <div class="login-bottom">
             <h2>Register</h2>
-            {%for message in get_flashed_messages()%}
-            <div class="alert alert-warning">
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
-                {{message}}
-            </div>
-            {%endfor%}
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-warning">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{message}}
+                </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+            <form action="" method="post">
+                {{ form.csrf_token }}
             <div class="col-md-6">
                 <div class="login-mail">
                     {#加了required以后会要求必须填写字段#}
                     {{form.username(placeholder="请输入你的用户名",required="")}}
+                    <i class="fa fa-user"></i>
+                </div>
+                <div class="login-mail">
+                    {{form.realname(placeholder="请输入你的真实姓名",required="")}}
                     <i class="fa fa-user"></i>
                 </div>
                 <div class="login-mail">
@@ -43,9 +57,10 @@
                 <a href="{{ url_for('auth.login') }}" class="hvr-shutter-in-horizontal">登录</a>
             </div>
             <div class="clearfix"></div>
+            </form>
         </div>
     </div>
-</form>
+
     <!---->
     <div class="copy-right">
         <p>&copy; 2017 All Rights Reserved</p>
