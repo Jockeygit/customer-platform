@@ -85,7 +85,7 @@ class Customer(db.Model):
     # account_id引用employee表中的id
     account_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
 
-contract_agreement = db.Table('contract_agreement',
+Contract_Agreement = db.Table('contract_agreement',
                               db.Column('contract_id', db.Integer, db.ForeignKey('contract.id')),
                               db.Column('agreement_id', db.Integer, db.ForeignKey('agreement.id')),
                      )
@@ -101,7 +101,7 @@ class Contract(db.Model):
     # customer_id引用customer表的id
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=False, unique=True)
     agreements = db.relationship('Agreement',
-                                 secondary=contract_agreement,
+                                 secondary=Contract_Agreement,
                                  backref=db.backref('contracts', lazy='dynamic'),
                                  lazy='dynamic')
 
@@ -117,9 +117,9 @@ class Record(db.Model):
     __tablename__ = 'record'
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(100), nullable=True, unique=False)
-    #金额
+    # 金额
     charge = db.Column(db.Integer, nullable=False, unique=False)
-    charge_date = db.Column(db.Date, nullable=False, unique=False)
+    charge_date = db.Column(db.String(15), nullable=False, unique=False)
     # contract_id引用contract表的id
     contract_id = db.Column(db.Integer, db.ForeignKey('contract.id'), nullable=False, unique=True)
 
@@ -137,7 +137,7 @@ class Todolist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False, unique=False)
     # account_id引用employee表的id
-    account_id = db.Column(db.Integer, nullable=False, unique=True)
+    account_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
 
 
 if __name__ == '__main__':

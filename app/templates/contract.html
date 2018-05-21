@@ -23,7 +23,7 @@
                         <a href="#"><i class="fa fa-bar-chart-o"></i> 合同<span class="fa arrow"></span></a>
                         <ul class="nav nav-second-level">
                             <li>
-                                <a class="active-menu" href="{{ url_for('main.contact') }}">合同</a>
+                                <a class="active-menu" href="{{ url_for('main.contract') }}">合同管理</a>
                             </li>
                             <li>
                                 <a href="#">收费记录</a>
@@ -159,6 +159,19 @@
                 },
                 "sDom": "lfrtip",
                 "iDisplayLength": 15,
+                "columnDefs" : [ {
+                 //定义操作列,######以下是重点########
+                 "targets" : 6,//操作按钮目标列
+                 "data" : null,
+                    "render" : function(data, type,row) {
+                        var id = '"' + row.id + '"';
+                        //var row = JSON.stringify(row).replace(/\"/g,"'")
+                        console.log(row)
+                        var html = "<a href='javascript:void(0);'  class='delete btn btn-default btn-xs'  >收费<i class='fa fa-times'></i> </a>"
+                        html += "<a onclick='setDefaultData(\""+row.name+"\")' class='up btn btn-default btn-xs' data-toggle='modal' data-target='#updateModal'><i class='fa fa-arrow-up'></i> 编辑</a>"
+                        html += "<a href='javascript:void(0);'   onclick='deleteThisRowPapser(\""+row.name+"\")'  class='down btn btn-default btn-xs'><i class='fa fa-arrow-down'></i> 删除</a>"
+                        return html;
+                    }}],
                 'bStateSave': true,
                 "sAjaxSource": "/contract/listJson",
 

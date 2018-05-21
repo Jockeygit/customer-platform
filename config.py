@@ -30,6 +30,8 @@ class Config:
     FLASKY_COMMENTS_PER_PAGE = 30
     FLASKY_SLOW_DB_QUERY_TIME = 0.5
 
+    UPLOAD_FOLDER = 'upload'
+
     @staticmethod
     def init_app(app):
         pass
@@ -41,16 +43,18 @@ class DevelopmentConfig(Config):
     # 该配置为True,则每次请求结束都会自动commit数据库的变动
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    # 配置数据库地址(格式：mysql://username:password@hostname/database)
+    # 配置windows数据库地址(格式：mysql://username:password@hostname/database)
    # SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
     #    'mysql+pymysql://root:root@localhost:3306/cms_test'
 
-    # 配置数据库地址(格式：mysql://username:password@hostname/database)
+    # 配置mac数据库地址(格式：mysql://username:password@hostname/database)
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'mysql+pymysql://root:123@localhost:3306/cms_test'
+    'mysql+pymysql://root:5185425mysql@localhost:3306/mydatabase'
+      # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:5185425mysql@localhost:3306/mydatabase'
 
     #设置静态资源缓存时间为1秒
     SEND_FILE_MAX_AGE_DEFAULT = timedelta(seconds=1)
+
 
 config = {
     'development': DevelopmentConfig,

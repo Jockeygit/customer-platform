@@ -16,7 +16,7 @@
                         <a href="#"><i class="fa fa-bar-chart-o"></i> 合同</a>
                         <ul class="nav nav-second-level">
                             <li>
-                                <a href="{{ url_for('main.contact') }}">合同</a>
+                                <a href="{{ url_for('main.contract') }}">合同管理</a>
                             </li>
                             <li>
                                 <a href="#">收费记录</a>
@@ -30,7 +30,6 @@
                         <a href="empty.html"><i class="fa fa-fw fa-file"></i> 工作报告</a>
                     </li>
 {% endblock %}
-
 {% block content %}
     <div id="page-wrapper" class="gray-bg dashbard-1">
         <div class="content-main">
@@ -117,19 +116,45 @@
                                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                                             <h4 class="modal-title" id="importModalLabel">批量导入客户</h4>
                                         </div>
+                                        <form id="import_form" method="post" action="/customer/import" enctype="multipart/form-data">
                                         <div class="modal-body">
                                             <div class="form-group">
-                                                <label>Text Input</label><input class="form-control">
+                                                    <div>
+                                                        <input id="File1" type="file" name="myfile"/>
+                                                    </div>
                                             </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                                            <button type="button" class="btn btn-primary">保存</button>
+                                            <button type="submit" class="btn btn-primary">导入</button>
                                         </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-primary"><span class="glyphicon glyphicon-export" ></span> 批量导出客户</button>
+                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exportModal">
+                                <span class="glyphicon glyphicon-edit">
+                            </span> 批量导出客户</button>
+                            <div class="modal fade modal-center" id="exportModal" tabindex="-1" role="dialog" aria-labelledby="exportModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header" style="text-align:left">
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                            <h4 class="modal-title" id="exportModalLabel">批量导出客户</h4>
+                                        </div>
+                                        <form id="export_form" method="post" action="/customer/export" enctype="multipart/form-data">
+                                        <div class="modal-body">
+                                            确定导出客户数据？
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                            <button type="submit" class="btn btn-primary" onclick='missButton()'>导出</button>
+
+                                        </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         </div>
                     <div class="panel panel-default">
@@ -156,6 +181,28 @@
                 </div>
             </div>
         </div>
+
+
+                                  <div class="modal fade modal-center" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exportModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header" style="text-align:left">
+                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+
+                                        </div>
+                                        <div class="modal-body">
+                                            确定删除该客户？
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                            <button type="submit" class="btn btn-primary">确定</button>
+                                        </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+
         <div class="modal fade modal-center" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content" style="font-weight: normal;">
@@ -262,7 +309,7 @@
                         var id = '"' + row.id + '"';
                         //var row = JSON.stringify(row).replace(/\"/g,"'")
                         console.log(row)
-                        var html = "<a href='javascript:void(0);'  class='delete btn btn-default btn-xs'  ><i class='fa fa-times'></i> 查看</a>"
+                        var html = ""//<a href='javascript:void(0);'  class='delete btn btn-default btn-xs'  ><i class='fa fa-times'></i> 查看</a>"
                         html += "<a onclick='setDefaultData(\""+row.name+"\")' class='up btn btn-default btn-xs' data-toggle='modal' data-target='#updateModal'><i class='fa fa-arrow-up'></i> 编辑</a>"
                         html += "<a href='javascript:void(0);'   onclick='deleteThisRowPapser(\""+row.name+"\")'  class='down btn btn-default btn-xs'><i class='fa fa-arrow-down'></i> 删除</a>"
                         return html;
@@ -392,6 +439,12 @@
             }
         })
     }
+
+    function missButton(){
+     $("#exportModal .btn-default").click()
+     console.log('调用到了')
+     }
+
     </script>
          <!-- Custom Js -->
     <script src="static/assets/js/custom-scripts.js"></script>
