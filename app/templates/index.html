@@ -8,4 +8,46 @@
 
 	<script src="static/assets/js/easypiechart.js"></script>
 	<script src="static/assets/js/easypiechart-data.js"></script>
+
+    <script src="static/assets/js/custom.js"></script>
+    <script>
+        $(document).ready(function (){
+    $.ajax({
+        url:"/report/data",
+        type:"get",
+        dataType: 'json',
+        processData:false,
+        contentType:false,
+        success:function(data) {
+            var data = data.data[0];
+            console.log(data)
+            $("#personal-customer-summary").find("h3").text(data.sum_cus_per);
+            $("#company-customer-summary").find("h3").text(data.sum_cus_com);
+            $("#contract-summary").find("h3").text(data.sum_con);
+            $("#record-summary").find("h3").text(data.sum_char);
+
+            if(data.sum_cus_per!=0){
+                var percent = Math.round(data.user_cus_per/data.sum_cus_per * 10000) / 100.00;
+                $("#easypiechart-personal").text(percent+"%");
+                $("#easypiechart-personal").data('easyPieChart').update(percent);
+            }
+            if(data.sum_cus_com!=0){
+                var percent = Math.round(data.user_cus_com/data.sum_cus_com * 10000) / 100.00;
+                $("#easypiechart-company span").text(percent+"%");
+                $("#easypiechart-company").data('easyPieChart').update(percent);
+            }
+            if(data.sum_con!=0){
+                var percent = Math.round(data.user_con/data.sum_con * 10000) / 100.00;
+                $("#easypiechart-contract span").text(percent+"%");
+                $("#easypiechart-contract").data('easyPieChart').update(percent);
+            }
+            if(data.sum_char!=0){
+                var percent = Math.round(data.user_char/data.sum_char * 10000) / 100.00;
+                $("#easypiechart-record span").text(percent+"%");
+                $("#easypiechart-record").data('easyPieChart').update(percent);
+            }
+        }
+    });
+});
+    </script>
 {% endblock %}

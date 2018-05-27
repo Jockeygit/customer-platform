@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="utf-8"/>
+    <title>Task5</title>
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="//cdn.bootcss.com/materialize/0.97.8/css/materialize.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="static/assets/css/bootstrap-datepicker3.css">
+    <link rel="stylesheet" href="static/assets/css/toastr.min.css">
+
+    <style>
+        .btn{
+            background-color: #5bc0de;
+        }
+        .cancel-btn{
+            background-color: #fff;
+            border-color: #ccc;
+            color: #333;
+            margin-left: 5px;
+        }
+        .category-name {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 1000;
+            display: none;
+            float: left;
+            min-width: 160px;
+            padding: 5px 0;
+            margin: 2px 0 0;
+            font-size: 14px;
+            text-align: left;
+            list-style: none;
+            background-color: #fff;
+            -webkit-background-clip: padding-box;
+            background-clip: padding-box;
+            border: 1px solid #ccc;
+            border: 1px solid rgba(0, 0, 0, .15);
+            border-radius: 4px;
+            -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+        }
+    </style>
+</head>
+<body>
+    <div class="row" style="background: white"><br>
+        <div class="col s2">
+            <div class="row" style="visibility:hidden" >
+                <div class="row">
+                        <div class="input-field col s12 m12">
+                            <input >
+                            <a ><i >add</i>OK</a>
+                        </div><br>
+                </div>
+            </div>
+            <div class="col s12" style="margin-left: 10px">
+                <div class="left-align nav-button">
+                    <a class="waves-effect waves-light btn blue center-align" onclick="setCategory({'cate_id': 1, 'name': '收件箱'})"><i class="material-icons left">email</i>收件箱</a>
+                    <br><br>
+                    <a class="waves-effect waves-light btn green center-align" onclick="setCategory({'cate_id': 2, 'name': '已完成'})"><i class="material-icons left">done</i>已完成</a>
+                    <br><br>
+                </div>
+                <div class="row">
+                    <h5>分类</h5>
+                    <div class="collection col s12 left" id="category">
+
+                    </div>
+                </div>
+                <div class="row">
+                <div class="col s12 left" >
+                    <form id="add-category-form"  method="POST">
+                        <input class="validate" placeholder="新分类？" name="name" id="category-input" type="text">
+                        <a class="waves-effect waves-light btn small right" id="new-category" href="#!" onclick="addCategory()">添加</a>
+                    </form>
+                </div>
+                </div>
+            </div>
+        </div>
+        <div class="col s9 m9 l9 left">
+            <div class="row">
+                <form class="col s12 m12 l12 offset-m2" id="add-item-form" method="POST">
+                    <div class="row">
+                        <div class="input-field col s12 m12">
+                            <input class="validate" id="item-input" type="text" name="item" placeholder="添加代办事项">
+                            <a class="waves-effect waves-light btn input-field right" id="new-item" onclick="addTodo()"><i class="material-icons right">add</i>OK</a>
+                        </div><br>
+                    </div>
+                </form>
+            </div>
+            <div class="col s12 m12 l12 items">
+                <div id="items">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="//cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+    <script src="//cdn.bootcss.com/materialize/0.97.8/js/materialize.min.js"></script>
+    <script src="static/assets/js/bootstrap-datepicker.js"></script>
+    <script src="static/assets/js/toastr.min.js"></script>
+    <script>
+        category_now = {"cate_id": 1, "name": "收件箱"};   //当前默认分类为0
+        $(document).ready(function (){
+            init();
+
+            $("body").on('click',".edit-btn", function () {
+              var itemId = this.id;
+              $("#item" + itemId).hide();
+              $("#form" + itemId).show();
+                $(".cancel-btn").click(function() {
+                  $("#form" + itemId).hide();
+                  $("#item" + itemId).show();
+              });
+            });
+        });
+
+        function init() {
+            $.ajax({
+            url:"{{ url_for('main.todo_list') }}",
+            type:"get",
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data) {
+                category_list = data.category;
+                todo_list = data.todo;
+                $(":input").val("");  //清空所有的输入框
+                //渲染分类
+                var html = "";
+                for (var i = 0; i < category_list.length; i++) {
+                    var cate_json = JSON.stringify(category_list[i]).replace(/\"/g, "'")
+                    console.log(cate_json);
+                    if (category_list[i].cate_id != 1 & category_list[i].cate_id != 2) {
+                        html += "<span class='categories'>";
+                        html += "<a  class='right delete-category red-text' title='delete it?' href='#' onclick='delCategory(" + category_list[i].cate_id + ")'>x</a>";
+                        html += '<a  class="collection-item" onclick="setCategory(' + cate_json + ')"><span class="badge ">' + category_list[i].count + '</span>' + category_list[i].name + '</a>';
+                        html += "</span>";
+                    }
+                }
+
+
+                $("#category").html(html);
+
+                //渲染待办事项
+                $(".items").html('<span class="category-name"> ' + category_now.name + ' </span><div id="items"></div>');
+                html = "";
+                var todo_now = todo_list[category_now.cate_id + ""];
+                console.log(todo_now)
+                if (typeof(todo_now) != "undefined"){
+                    for (var i = 0; i < todo_now.length; i++) {
+                        var id = todo_now[i].todo_id;
+                        if (category_now.cate_id == 2) {
+                            html += '<p class="card-panel hoverable" id="item' + id + '">';
+                            html += '<a><i class="material-icons left">done_all</i></a>'
+                            html += '<span><del>' + todo_now[i].content + '</del></span>'
+                        }
+                        else {
+                            html += '<p class="card-panel hoverable" id="item' + id + '">';
+                            html += '<input type="checkbox" id="test' + id + '" onclick="finishTodo(' + id + ')" /> <label for="test' + id + '" style="color: white">1</label>';
+                            html += '<span>' + todo_now[i].content + '</span>'
+                        }
+                        //待办事项编辑和删除
+                        html += '<a class="right delete-item" title="delete it?" href="#" onclick="delTodo(' + todo_now[i].todo_id + ')"><i class="material-icons left">delete</i></a>';
+                        html += '<a class="edit-btn right" id="' + id + '" href="#"><i class="material-icons left">mode_edit</i></a></p>'
+                        //编辑表单
+                        html += '<form class="card-panel edit-form" id="form' + id + '"  method="POST" style="display: none">';
+                        html += '<div class="input-field col s12">'
+                        html += '<input name="body" id="input' + id + '" type="text" class="validate" value="' + todo_now[i].content + '"> '
+                        html += '<label class="active" for="input' + id + '">待办事项</label></div>';
+                        html += '<div class="col s12"><input type="text" id="datepicker' + id + '" class="dp" value="' + todo_now[i].deadline + '"></div>'
+                        html += '<a class="waves-effect waves-light btn confirm-btn" href="#!" onclick="updateTodo(' + id + ')">确定</a>'
+                        html += '<a class="waves-effect waves-light btn cancel-btn" href="#!">取消</a>'
+                        html += '</form>'
+                    }
+                }
+                $("#items").html(html);
+
+                $.fn.datepicker.dates['cn'] = {   //切换为中文显示
+                    days: ["周日", "周一", "周二", "周三", "周四", "周五", "周六", "周日"],
+                            daysShort: ["日", "一", "二", "三", "四", "五", "六", "七"],
+                            daysMin: ["日", "一", "二", "三", "四", "五", "六", "七"],
+                            months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                            monthsShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+                            today: "今天",
+                            clear: "清除"
+                    };
+                $(function() {
+                    $( ".dp" ).each(function(){
+                        $(this).datepicker({
+                            format: 'yyyy-mm-dd',
+                            language: 'cn',
+                        });
+                    })
+                });
+
+                parent.reload_height()
+
+            },
+            error:function(e){
+                 toastr.error("获取后台数据异常");
+            }
+            });
+        }
+
+        function addCategory() {
+            var name = $("#category-input").val();
+            console.log(name)
+            $.ajax({
+            url:"/category/add",
+            type:"post",
+            data:JSON.stringify({"name":name}),
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data){
+                 if(data.result==1){
+                     toastr.success("添加分类成功");
+                     init();
+                 }
+                 else
+                     toastr.error("添加分类失败");
+            },
+            error:function(e){
+                toastr.error("添加分类异常");
+            }
+            })
+        }
+
+        function setCategory(cate) {
+            console.log(cate)
+            category_now=cate;
+            init();
+        }
+
+        function addTodo() {
+            var name = $("#item-input").val();
+            console.log(name+category_now.cate_id)
+            $.ajax({
+            url:"/todo/add",
+            type:"post",
+            data:JSON.stringify({"name":name,"category":category_now.cate_id}),
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data){
+                 if(data.result==1){
+                     toastr.success("添加待办事项成功");
+                     init();
+                 }
+                 else
+                     toastr.error("添加待办事项失败");
+            },
+            error:function(e){
+                toastr.error("添加待办事项异常");
+            }
+            })
+        }
+
+        function delTodo(id) {
+            $.ajax({
+            url:"/todo/del",
+            type:"post",
+            data:JSON.stringify({"id":id}),
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data){
+                 if(data.result==1){
+                     toastr.success("删除待办事项成功");
+                     init();
+                 }
+                 else
+                     toastr.error("删除待办事项失败");
+            },
+            error:function(e){
+                toastr.error("删除待办事项异常");
+            }
+            })
+        }
+
+        function delCategory(id) {
+            $.ajax({
+            url:"/category/del",
+            type:"post",
+            data:JSON.stringify({"id":id}),
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data){
+                 if(data.result==1){
+                     toastr.success("删除分类成功");
+                     init();
+                 }
+                 else
+                     toastr.error("删除分类失败");
+            },
+            error:function(e){
+                toastr.error("删除分类异常");
+            }
+            })
+        }
+
+        function updateTodo(id) {
+            var content = $("#input"+id).val();
+            var deadline = $("#datepicker"+id).val();
+            $.ajax({
+            url:"/todo/update",
+            type:"post",
+            data:JSON.stringify({"id":id,"content":content, "deadline":deadline}),
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data){
+                 if(data.result==1){
+                     toastr.success("编辑待办事项成功");
+                     init();
+                 }
+                 else
+                     toastr.error("编辑待办事项失败");
+            },
+            error:function(e){
+                toastr.error("编辑待办事项异常");
+            }
+            })
+        }
+
+        function finishTodo(id) {
+            $.ajax({
+            url:"/todo/finish",
+            type:"post",
+            data:JSON.stringify({"id":id}),
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data) {
+                if (data.result == 1)
+                    setTimeout(init(), 5000);
+            }
+            })
+        }
+    </script>
+</body>
+</html>

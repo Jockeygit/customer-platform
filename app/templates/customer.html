@@ -19,12 +19,12 @@
                                 <a href="{{ url_for('main.contract') }}">合同管理</a>
                             </li>
                             <li>
-                                <a href="#">收费记录</a>
+                                <a href="{{ url_for('main.record') }}">收费记录</a>
                             </li>
                         </ul>
                     </li>
                     <li>
-                        <a href="table.html"><i class="fa fa-table"></i> 待办事项</a>
+                        <a href="{{ url_for('main.todo') }}"><i class="fa fa-table"></i> 待办事项</a>
                     </li>
                     <li>
                         <a href="empty.html"><i class="fa fa-fw fa-file"></i> 工作报告</a>
@@ -126,7 +126,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                                            <button type="submit" class="btn btn-primary">导入</button>
+                                            <button type="submit" class="btn btn-primary" onclick="missButton('import_form')">导入</button>
                                         </div>
                                         </form>
                                     </div>
@@ -148,8 +148,7 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                                            <button type="submit" class="btn btn-primary" onclick='missButton()'>导出</button>
-
+                                            <button type="submit" class="btn btn-primary" onclick='missButton("export_form")'>导出</button>
                                         </div>
                                         </form>
                                     </div>
@@ -182,91 +181,85 @@
             </div>
         </div>
 
-
-                                  <div class="modal fade modal-center" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exportModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header" style="text-align:left">
-                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-
-                                        </div>
-                                        <div class="modal-body">
-                                            确定删除该客户？
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                                            <button type="submit" class="btn btn-primary">确定</button>
-                                        </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog" style="width:350px">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        确定删除该客户？
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary" onclick="deleteThisRowPapser()">确定</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
         <div class="modal fade modal-center" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content" style="font-weight: normal;">
-                                        <div class="modal-header" style="text-align:left">
-                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                                            <h4 class="modal-title" id="updateModalLabel">编辑客户信息</h4>
-                                        </div>
-                                        <!-- add_customer_form -->
-                                        <form role="form" class="form-horizontal" id="update_customer_form" data-toggle="validator">
-                                            {{ update_form.csrf_token }}
-                                            <div class="modal-body">
-                                                {%for message in get_flashed_messages()%}
-                                                <div class="alert alert-warning">
-                                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                                                    {{message}}
-                                                </div>
-                                                {%endfor%}
-                                                <div class="form-group">
-                                                    <label class="col-sm-3 control-label">客户名称</label>
-                                                    <div class="col-sm-8">
-                                                        {{update_form.customername(required="", class="form-control",id="update_name")}}
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-3 control-label">类型</label>
-                                                    {{update_form.type(class="radio-inline")}}
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-3 control-label">电话</label>
-                                                    <div class="col-sm-8">
-                                                        {{update_form.phone(class="form-control",id="update_phone")}}
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-3 control-label">邮箱</label>
-                                                    <div class="col-sm-8">
-                                                        <!--<input type="email" class="form-control" id="addEmail" placeholder="Email" data-error="你输入的不是一个有效的邮件地址！">
-                                                        <div class="help-block with-errors"></div>-->
-                                                        {{update_form.email(class="form-control",id="update_email")}}
-                                                    </div>
-
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-3 control-label">地址</label>
-                                                    <div class="col-sm-8">
-                                                        {{update_form.address(class="form-control",id="update_address")}}
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-3 control-label">客户经理</label>
-                                                    <div class="col-sm-8">
-                                                        {{update_form.manager(required="", class="form-control",id="update_manager")}}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                                                <button type="button" class = "btn btn-primary" onclick='updateThisRowPapser("update_customer_form")'>保存</button>
-                                                <!--{{add_form.submit_customer(class="btn btn-default",onclick='ajaxForm("add_customer_form")')}}-->
-                                            </div>
-                                        </form>
-                                    </div>
+            <div class="modal-dialog">
+                <div class="modal-content" style="font-weight: normal;">
+                    <div class="modal-header" style="text-align:left">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="updateModalLabel">编辑客户信息</h4>
+                    </div>
+                    <!-- add_customer_form -->
+                    <form role="form" class="form-horizontal" id="update_customer_form" data-toggle="validator">
+                        {{ update_form.csrf_token }}
+                        <div class="modal-body">
+                            {%for message in get_flashed_messages()%}
+                            <div class="alert alert-warning">
+                                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                {{message}}
+                            </div>
+                            {%endfor%}
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">客户名称</label>
+                                <div class="col-sm-8">
+                                    {{update_form.customername(required="", class="form-control",id="update_name")}}
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">类型</label>
+                                {{update_form.type(class="radio-inline")}}
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">电话</label>
+                                <div class="col-sm-8">
+                                    {{update_form.phone(class="form-control",id="update_phone")}}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">邮箱</label>
+                                <div class="col-sm-8">
+                                    <!--<input type="email" class="form-control" id="addEmail" placeholder="Email" data-error="你输入的不是一个有效的邮件地址！">
+                                    <div class="help-block with-errors"></div>-->
+                                    {{update_form.email(class="form-control",id="update_email")}}
+                                </div>
+
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">地址</label>
+                                <div class="col-sm-8">
+                                    {{update_form.address(class="form-control",id="update_address")}}
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">客户经理</label>
+                                <div class="col-sm-8">
+                                    {{update_form.manager(required="", class="form-control",id="update_manager")}}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button type="button" class = "btn btn-primary" onclick='updateThisRowPapser("update_customer_form")'>保存</button>
+                            <!--{{add_form.submit_customer(class="btn btn-default",onclick='ajaxForm("add_customer_form")')}}-->
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     <div class="clearfix"></div>
     </div>
 
@@ -283,6 +276,10 @@
     <script src="static/assets/js/dataTables/dataTables.bootstrap.js"></script>
     <script type="text/javascript" src="static/assets/js/validator.min.js"></script>
     <script>
+        //customerList存放所有客户信息
+        customerList = {};
+        del_id = "";
+        uodate_id = "";
         $(document).ready(function () {
             $('#dataTables-example').dataTable({
                 "oLanguage": {
@@ -301,37 +298,43 @@
                 },
                 "sDom": "lfrtip",
                 "iDisplayLength": 15,
-                "columnDefs" : [ {
-                    // 定义操作列,######以下是重点########
-                    "targets" : 6,//操作按钮目标列
-                    "data" : null,
-                    "render" : function(data, type,row) {
+                //"sAjaxSource": "/customer/listJson",
+                "ajax": {
+                    url :  "/customer/listJson" ,
+                    dataSrc: function (json) {
+                        for(var i = 0; i<json.data.length;i++){
+                            var cus = json.data[i];
+                            customerList[cus.id] = cus;
+                        }
+                        console.log(customerList);
+                        return json.data;
+                    }
+                },
+                 "columns": [
+                    {"data": "name"},
+                    {"data": "type"},
+                    {"data": "phone"},
+                    {"data": "email"},
+                    {"data": "address"},
+                    {"data": "manager"},
+                    {"render" : function(data, type,row) {
                         var id = '"' + row.id + '"';
                         //var row = JSON.stringify(row).replace(/\"/g,"'")
-                        console.log(row)
+                        //console.log(id)
                         var html = ""//<a href='javascript:void(0);'  class='delete btn btn-default btn-xs'  ><i class='fa fa-times'></i> 查看</a>"
-                        html += "<a onclick='setDefaultData(\""+row.name+"\")' class='up btn btn-default btn-xs' data-toggle='modal' data-target='#updateModal'><i class='fa fa-arrow-up'></i> 编辑</a>"
-                        html += "<a href='javascript:void(0);'   onclick='deleteThisRowPapser(\""+row.name+"\")'  class='down btn btn-default btn-xs'><i class='fa fa-arrow-down'></i> 删除</a>"
+                        html += "<a onclick='setDefaultData("+id+")' class='up btn btn-default btn-xs' data-toggle='modal' data-target='#updateModal'><i class='fa fa-arrow-up'></i> 编辑</a>"
+                        html += "<a href='javascript:void(0);'   onclick='setDelId("+id+")'  class='down btn btn-default btn-xs' data-toggle='modal' data-target='#deleteModal'><i class='fa fa-arrow-down'></i> 删除</a>"
                         return html;
-                    }}],
-                "sAjaxSource": "/customer/listJson",
-                 "aoColumns": [
-                    {"mData": "name"},
-                    {"mData": "type"},
-                    {"mData": "phone"},
-                    {"mData": "email"},
-                    {"mData": "address"},
-                    {"mData": "manager"},
+                    }}
                  ],
                 　'bStateSave': true,
 
             } );
         });
-    </script>
-    <script>
-        var update_id;
-        function ajaxForm(id){
-        var form= new FormData(document.getElementById(id));
+
+        //新增客户
+    function ajaxForm(form_id){
+        var form= new FormData(document.getElementById(form_id));
         $.ajax({
             url:"{{ url_for('main.customer_add') }}",
             type:"post",
@@ -348,20 +351,25 @@
                 else {
                     var body = '<div class="alert alert-warning"> <button type="button" class="close" data-dismiss="alert">&times;</button>'+data.result+ '</div>'
 
-                    $('#'+id+' .modal-body').prepend(body)
+                    $('#'+form_id+' .modal-body').prepend(body)
                 }
 
             },
             error:function(e){
-                    alert("没有取得数据");
+                console.error("新增客户：没有取得数据");
             }
         })
     }
-    function deleteThisRowPapser(id){
+
+    function setDelId(id){
+         del_id = id;
+     }
+    //删除客户
+    function deleteThisRowPapser(){
         $.ajax({
             url:"{{ url_for('main.customer_del') }}",
             type:"post",
-            data:JSON.stringify({"name":id}),
+            data:JSON.stringify({"id":del_id}),
             dataType: 'text',
             processData:false,
             contentType:false,
@@ -369,13 +377,15 @@
                  if (data==1){
                      console.log("del success")
                      start = $("#dataTables-example").dataTable().fnSettings()._iDisplayStart;
-                       total = $("#dataTables-example").dataTable().fnSettings().fnRecordsDisplay();
-                       window.location.reload();
-                       if((total-start)==1){
+                     total = $("#dataTables-example").dataTable().fnSettings().fnRecordsDisplay();
+                     window.location.reload();
+                     if((total-start)==1){
                         if (start > 0) {
                          $("#dataTables-example").dataTable().fnPageChange( 'previous', true );
                         }
                     }
+
+                     $("#deleteModal .btn-default").click()
                  }
             },
             error:function(e){
@@ -383,9 +393,9 @@
             }
         })
     }
-    function updateThisRowPapser(id){
-
-        var form= new FormData(document.getElementById(id));
+    //编辑客户
+    function updateThisRowPapser(form_id){
+        var form= new FormData(document.getElementById(form_id));
         $.ajax({
             url:"customer/update/"+update_id,
             type:"post",
@@ -395,14 +405,14 @@
             contentType:false,
             success:function(data){
                 if(data.result == 1){
-                    setTimeout($("#updateModal .btn-default").click(),1000)
-                    console.log($("#updateModal .btn-default"))
+                    setTimeout($("#updateModal .btn-default").click(),1000);
+                    console.log($("#updateModal .btn-default"));
                     $("#dataTables-example").DataTable().ajax.reload(null, false);
                 }
                 else {
                     var body = '<div class="alert alert-warning"> <button type="button" class="close" data-dismiss="alert">&times;</button>'+data.result+ '</div>'
 
-                    $('#'+id+' .modal-body').prepend(body)
+                    $('#'+form_id+' .modal-body').prepend(body)
                 }
             },
             error:function(e){
@@ -411,39 +421,29 @@
         })
 
     }
-    function setDefaultData(name){
-        console.log(name);
-        $.ajax({
-            url:"customer/listJson?name="+name,
-            type:"get",
-            dataType: 'json',
-            processData:false,
-            contentType:false,
-            success:function(data){
-                data = data.data[0]
-                update_id=data.id;
+    //编辑设置默认值
+    function setDefaultData(id){
+        var data = customerList[id];
+        update_id=id;
 
-                $("#update_customer_form #update_name").val(data.name);
-                if(data.type=="个人"){
-                    $("#update_customer_form #type-0").attr("checked",true);
-                }
-                else {
-                    $("#update_customer_form #type-1").attr("checked",true);
-                }
-                $("#update_customer_form #update_phone").val(data.phone);
-                $("#update_customer_form #update_email").val(data.email);
-                $("#update_customer_form #update_address").val(data.address);
-            },
-            error:function(e){
-                console.log("没有取得数据");
-            }
-        })
+        $("#update_customer_form #update_name").val(data.name);
+        if(data.type=="个人"){
+            $("#update_customer_form #type-0").prop("checked",true);
+            $("#update_customer_form #type-1").removeAttr("checked");
+        }
+        else {
+            $("#update_customer_form #type-1").prop("checked",true);
+            $("#update_customer_form #type-0").removeAttr("checked");
+        }
+        $("#update_customer_form #update_phone").val(data.phone);
+        $("#update_customer_form #update_email").val(data.email);
+        $("#update_customer_form #update_address").val(data.address);
     }
 
-    function missButton(){
-     $("#exportModal .btn-default").click()
-     console.log('调用到了')
-     }
+    function missButton(form_id){
+        $("#"+form_id+" .btn-default").click();
+    }
+
 
     </script>
          <!-- Custom Js -->

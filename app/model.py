@@ -11,7 +11,9 @@
 # -------------------------------------------------
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db
+import sys
+sys.path.append("..")
+from app import db, create_app
 from datetime import datetime
 
 
@@ -65,6 +67,7 @@ class Employee(db.Model):
 class Department(db.Model):
     __tablename__ = 'department'
     id = db.Column(db.Integer, primary_key=True)
+    parent_id = db.Column(db.Integer, nullable=False)
     name = db.Column(db.String(24), nullable=False, unique=True)
 
 # 职位表
@@ -121,7 +124,7 @@ class Record(db.Model):
     charge = db.Column(db.Integer, nullable=False, unique=False)
     charge_date = db.Column(db.String(15), nullable=False, unique=False)
     # contract_id引用contract表的id
-    contract_id = db.Column(db.Integer, db.ForeignKey('contract.id'), nullable=False, unique=True)
+    contract_id = db.Column(db.Integer, db.ForeignKey('contract.id'), nullable=True, unique=True)
 
 # 合同-服务项目表
 """
@@ -136,9 +139,29 @@ class Todolist(db.Model):
     __tablename__ = "todolist"
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False, unique=False)
+    is_finish = db.Column(db.Boolean, nullable=False, unique=False)
+    deadline = db.Column(db.String(15))
     # account_id引用employee表的id
-    account_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
 
+class Category(db.Model):
+    __tablename__ = "category"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(15), nullable=False, unique=True)
+    # account_id引用employee表的id
+    account_id = db.Column(db.Integer, db.ForeignKey('employee.id'))
+    todolists = db.relationship('Todolist', backref='category')
 
 if __name__ == '__main__':
-    db.create_all()
+    app = create_app('default')
+    with app.app_context():
+        db.create_all()
+
+    #待办事项
+    inbox = Category(name=u'收件箱')
+    done = Category(name=u'已完成')
+    #职位
+    staff = Position(name=u'普通员工')
+    director = Position(name=u'主管')
+    db.session.add_all([inbox, done, staff, director])
+    db.session.commit()

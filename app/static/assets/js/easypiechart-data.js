@@ -1,26 +1,26 @@
 $(function() {
-    $('#easypiechart-teal').easyPieChart({
+    $('#easypiechart-contract').easyPieChart({
         scaleColor: false,
         barColor: '#1ebfae'
     });
 });
 
 $(function() {
-    $('#easypiechart-orange').easyPieChart({
+    $('#easypiechart-company').easyPieChart({
         scaleColor: false,
         barColor: '#ffb53e'
     });
 });
 
 $(function() {
-    $('#easypiechart-red').easyPieChart({
+        $('#easypiechart-record').easyPieChart({
         scaleColor: false,
         barColor: '#f9243f'
     });
 });
 
 $(function() {
-   $('#easypiechart-blue').easyPieChart({
+   $('#easypiechart-peresonal').easyPieChart({
        scaleColor: false,
        barColor: '#30a5ff'
    });

@@ -14,7 +14,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, SelectField, RadioField, DateField, IntegerField, SelectMultipleField
 from wtforms.validators import DataRequired, length
 from wtforms import ValidationError
-from app.model import Employee, Agreement, Customer
+from app.model import *
 from flask_login import current_user
 
 # 客户表单
@@ -108,7 +108,7 @@ class contractFrom(FlaskForm):
 class chargeFrom(FlaskForm):
     charge = IntegerField('应收费用', validators=[DataRequired()])
 
-    chargeDate = DateField('收费日期', default='', validators=[DataRequired()], format='%Y/%m/%d')
+    chargeDate = DateField('收费日期', default='', validators=[DataRequired()], format='%Y-%m-%d')
 
     description = StringField('说明', validators=[length(1, 50, message='说明字数不超过50')],
                     render_kw={'placeholder': '请输入说明'})
@@ -127,23 +127,36 @@ class departmentFrom(FlaskForm):
     name = StringField('部门名称', validators=[length(1, 10, message='部门名称字数不超过10')],
                               render_kw={'placeholder': '请输入名称'})
 
-    director = SelectField('部门主管', coerce=int)
-
-    staff = SelectField('部门员工', coerce=int)
+    parent = SelectField('上级部门', coerce=int)
 
     submit = SubmitField('保存')
 
     # 初始化部门主管下拉框
     def __init__(self, *args, **kwargs):
         super(departmentFrom, self).__init__(*args, **kwargs)
-        self.director.choices = [(employee.id, employee.name)
-                                for employee in Employee.query.order_by(Employee.name).all()]
+        self.parent.choices = [(department.id, department.name)
+                                for department in Department.query.order_by(Department.name).all()]
 
-    # 初始化部门员工下拉框
+# 更新员工
+class employeeFrom(FlaskForm):
+    name = StringField('员工名称', validators=[length(1, 10, message='员工名称字数不超过10')],
+                       render_kw={'placeholder': '请输入名称'})
+
+    department = SelectField('所属部门', coerce=int)
+
+    position = SelectField('职位', coerce=int)
+
+    submit = SubmitField('保存')
+
+    # 初始化下拉框
     def __init__(self, *args, **kwargs):
-        super(departmentFrom, self).__init__(*args, **kwargs)
-        self.staff.choices = [(employee.id, employee.name)
-                                for employee in Employee.query.order_by(Employee.name).all()]
+        super(employeeFrom, self).__init__(*args, **kwargs)
+        self.department.choices = [(department.id, department.name)
+                               for department in Department.query.order_by(Department.name).all() if
+                               department.id != 1]
+
+        self.position.choices = [(position.id, position.name)
+                               for position in Position.query.order_by(Position.name).all()]
 
 # 新建/编辑待办事项
 class todolistFrom(FlaskForm):

@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block head_js %}
+<link href="static/assets/js/dataTables/dataTables.bootstrap.css" rel="stylesheet" />
+<link rel="stylesheet" href="static/assets/css/bootstrap-datepicker3.css">
+<link rel="stylesheet" href="static/assets/css/toastr.min.css">
+<style>
+    ul { list-style-type: none;}
+    li { display: inline-block;}
+    input.labelauty + label { font: 12px "Microsoft Yahei";}
+    ul,li {margin:0;padding:0;}
+</style>
+{% endblock %}
+
+{% block sidebar %}
+    <li>
+        <a href="#"><i class="fa fa-bar-chart-o"></i> 部门设置<span class="fa arrow"></span></a>
+        <ul class="nav nav-second-level">
+            <li>
+                <a href="{{ url_for('main.depart') }}">部门管理</a>
+            </li>
+            <li>
+                <a class="active-menu" href="{{ url_for('main.employee') }}">员工管理</a>
+            </li>
+        </ul>
+    </li>
+{% endblock %}
+
+{% block content %}
+<div id="page-wrapper" class="gray-bg dashbard-1">
+        <div class="content-main">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" style="text-align:right," >
+                            <button type="button" class="btn btn-info"  data-toggle="modal" data-target="#myModal">
+                                <span class="glyphicon glyphicon-plus"></span> 新增员工
+                            </button>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="dataTables">
+                                    <thead>
+                                        <tr>
+                                            <th>姓名</th>
+                                            <th>部门</th>
+                                            <th>职位</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <div class="modal fade " id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width:350px">
+            <div class="modal-content">
+                <div class="modal-header" style="text-align:left">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="updateModalLabel">编辑</h4>
+                </div>
+                <form role="form" class="form-horizontal" id="employee_form" data-toggle="validator">
+                    {{ employee_form.csrf_token }}
+                <div class="modal-body">
+                    {%for message in get_flashed_messages()%}
+                        <div class="alert alert-warning">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            {{message}}
+                        </div>
+                        {%endfor%}
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">员工名称</label>
+                        <div class="col-sm-8">
+                            {{employee_form.name(required="", class="form-control")}}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">部门</label>
+                        <div class="col-sm-8">
+                            {{employee_form.department(required="", class="form-control")}}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">职位</label>
+                        <div class="col-sm-8">
+                            {{employee_form.position(required="", class="form-control")}}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary" onclick="">确定</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    </div>
+
+    <!--//grid-->
+    <!---->
+    <div class="copy">
+        <p></p>
+    </div>
+{% endblock %}
+
+{% block bottom_js %}
+    <script src="static/assets/js/dataTables/jquery.dataTables.js"></script>
+    <script src="static/assets/js/dataTables/dataTables.bootstrap.js"></script>
+    <script src="static/assets/js/toastr.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#dataTables').dataTable({
+                "oLanguage": {
+                 "sSearch":"请输入查找关键字： ",
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sZeroRecords": "抱歉， 没有找到",
+                "sInfo": "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
+                "sInfoEmpty": "没有数据",
+                "sInfoFiltered": "(从 _MAX_ 条数据中检索)",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "前一页",
+                    "sNext": "后一页",
+                    "sLast": "尾页"
+                    }
+                },
+                "sDom": "lfrtip",
+                "iDisplayLength": 15,
+                'bStateSave': true,
+                "ajax": {
+                    url :  "/employee/listJson" ,
+                    dataSrc: function (json) {
+                        return json.data;
+                    }
+                },
+
+                "columns": [
+                    {"data": "name"},
+                    {"data": "department"},
+                    {"data": "position"},
+                    {
+                        "render": function(data, type,row) {
+                            var html="<div> <button type='button' class = 'btn btn-info btn-sm' data-toggle='modal' data-target='#updateModal'" +
+                                        " style='font-size: 12px; padding: 2px 10px;'>编辑</button></div>";
+
+                            return html
+                    }}
+                ]
+            } );
+        });
+    </script>
+
+
+{% endblock %}
+

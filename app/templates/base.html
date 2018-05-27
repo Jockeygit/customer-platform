@@ -11,8 +11,6 @@
     <link href="static/assets/css/bootstrap.css" rel="stylesheet" />
     <!-- FontAwesome Styles-->
     <link href="static/assets/css/font-awesome.css" rel="stylesheet" />
-    <!-- Morris Chart Styles-->
-    <link href="static/assets/js/morris/morris-0.4.3.min.css" rel="stylesheet" />
     <!-- Custom Styles-->
 
     <link href="static/assets/css/custom-styles.css" rel="stylesheet" />
@@ -20,6 +18,8 @@
     <!-- Google Fonts-->
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
     {% block head_js %}
+    <!-- Morris Chart Styles-->
+    <link href="static/assets/js/morris/morris-0.4.3.min.css" rel="stylesheet" />
     {% endblock %}
 </head>
 
@@ -242,7 +242,7 @@
                     <ul class="dropdown-menu dropdown-user">
                         <li><a href="#"><i class="fa fa-user fa-fw"></i> 个人设置</a>
                         </li>
-                        <li><a href="#"><i class="fa fa-gear fa-fw"></i> 部门设置</a>
+                        <li><a href="{{ url_for('main.depart') }}"><i class="fa fa-gear fa-fw"></i> 部门设置</a>
                         </li>
                         <li class="divider"></li>
                         <li><a href="#" data-toggle="modal" data-target="#exitModal"><i class="fa fa-sign-out fa-fw" ></i> 注销 </a>
@@ -271,12 +271,12 @@
                                 <a href="{{ url_for('main.contract') }}"> 合同管理</a>
                             </li>
                             <li>
-                                <a href="#"> 收费记录</a>
+                                <a href="{{ url_for('main.record') }}"> 收费记录</a>
                             </li>
                         </ul>
                     </li>
                     <li>
-                        <a href="table.html"><i class="fa fa-table"></i> 待办事项</a>
+                        <a href="{{ url_for('main.todo') }}"><i class="fa fa-table"></i> 待办事项</a>
                     </li>
                     <li>
                         <a href="empty.html"><i class="fa fa-fw fa-file"></i> 工作报告</a>
@@ -291,20 +291,13 @@
         <div id="page-wrapper">
             <div id="page-inner">
 
-
                 <div class="row">
                     <div class="col-md-12">
                         <h1 class="page-header">
-                            Dashboard <small>Summary of your App</small>
+                            Dashboard <small>数据一览</small>
                         </h1>
-						<ol class="breadcrumb">
-  <li><a href="#">Home</a></li>
-  <li><a href="#">Library</a></li>
-  <li class="active">Data</li>
-</ol>
                     </div>
                 </div>
-
 
                 <!-- /. ROW  -->
 
@@ -315,9 +308,9 @@
                                 <i class="fa fa-bar-chart-o fa-5x"></i>
 
                             </div>
-                            <div class="panel-right pull-right">
+                            <div class="panel-right pull-right" id="personal-customer-summary">
 								<h3>8,457</h3>
-                               <strong> Daily Visits</strong>
+                               <strong> 个人客户总数</strong>
                             </div>
                         </div>
                     </div>
@@ -327,9 +320,9 @@
                                 <i class="fa fa-shopping-cart fa-5x"></i>
 								</div>
 
-                            <div class="panel-right pull-right">
+                            <div class="panel-right pull-right" id="company-customer-summary">
 							<h3>52,160 </h3>
-                               <strong> Sales</strong>
+                               <strong> 企业客户总数</strong>
 
                             </div>
                         </div>
@@ -340,9 +333,9 @@
                                 <i class="fa fa fa-comments fa-5x"></i>
 
                             </div>
-                            <div class="panel-right pull-right">
+                            <div class="panel-right pull-right" id="contract-summary">
 							 <h3>15,823 </h3>
-                               <strong> Comments </strong>
+                               <strong> 合同总数 </strong>
 
                             </div>
                         </div>
@@ -353,9 +346,9 @@
                                 <i class="fa fa-users fa-5x"></i>
 
                             </div>
-                            <div class="panel-right pull-right">
+                            <div class="panel-right pull-right" id="record-summary">
 							<h3>36,752 </h3>
-                             <strong>No. of Visits</strong>
+                             <strong>收费金额总数</strong>
 
                             </div>
                         </div>
@@ -367,8 +360,8 @@
 			<div class="col-xs-6 col-md-3">
 				<div class="panel panel-default">
 					<div class="panel-body easypiechart-panel">
-						<h4>Customers</h4>
-						<div class="easypiechart" id="easypiechart-blue" data-percent="82" ><span class="percent">82%</span>
+						<h4>本用户占比</h4>
+						<div class="easypiechart" id="easypiechart-personal" data-percent="0" ><span class="percent">0%</span>
 						</div>
 					</div>
 				</div>
@@ -376,8 +369,8 @@
 			<div class="col-xs-6 col-md-3">
 				<div class="panel panel-default">
 					<div class="panel-body easypiechart-panel">
-						<h4>Sales</h4>
-						<div class="easypiechart" id="easypiechart-orange" data-percent="55" ><span class="percent">55%</span>
+						<h4>本用户占比</h4>
+						<div class="easypiechart" id="easypiechart-company" data-percent="0" ><span class="percent">0%</span>
 						</div>
 					</div>
 				</div>
@@ -385,8 +378,8 @@
 			<div class="col-xs-6 col-md-3">
 				<div class="panel panel-default">
 					<div class="panel-body easypiechart-panel">
-						<h4>Profits</h4>
-						<div class="easypiechart" id="easypiechart-teal" data-percent="84" ><span class="percent">84%</span>
+						<h4>本用户占比</h4>
+						<div class="easypiechart" id="easypiechart-contract" data-percent="0" ><span class="percent">0%</span>
 						</div>
 					</div>
 				</div>
@@ -394,8 +387,8 @@
 			<div class="col-xs-6 col-md-3">
 				<div class="panel panel-default">
 					<div class="panel-body easypiechart-panel">
-						<h4>No. of Visits</h4>
-						<div class="easypiechart" id="easypiechart-red" data-percent="46" ><span class="percent">46%</span>
+						<h4>本用户占比</h4>
+						<div class="easypiechart" id="easypiechart-record" data-percent="0" ><span class="percent">0%</span>
 						</div>
 					</div>
 				</div>
@@ -406,7 +399,7 @@
 				<div class="col-md-12">
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							Line Chart
+							客户新增时间线
 						</div>
 						<div class="panel-body">
 							<div id="morris-line-chart"></div>
