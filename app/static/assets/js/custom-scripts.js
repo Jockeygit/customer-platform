@@ -3,14 +3,13 @@
     License: Commons Attribution 3.0
     http://creativecommons.org/licenses/by/3.0/
 ---------------------------------------------------------  */
-
+/*
 (function ($) {
     "use strict";
     var mainApp = {
 
         initFunction: function () {
-            /*MENU 
-            ------------------------------------*/
+
             $('#main-menu').metisMenu();
 			
             $(window).bind("load resize", function () {
@@ -21,8 +20,7 @@
                 }
             });
 
-            /* MORRIS BAR CHART
-			-----------------------------------------*/
+
             Morris.Bar({
                 element: 'morris-bar-chart',
                 data: [{
@@ -67,8 +65,7 @@
 	 
 
 
-            /* MORRIS DONUT CHART
-			----------------------------------------*/
+
             Morris.Donut({
                 element: 'morris-donut-chart',
                 data: [{
@@ -88,8 +85,7 @@
                 resize: true
             });
 
-            /* MORRIS AREA CHART
-			----------------------------------------*/
+
 
             Morris.Area({
                 element: 'morris-area-chart',
@@ -155,8 +151,7 @@
                 resize: true
             });
 
-            /* MORRIS LINE CHART
-			----------------------------------------*/
+
             Morris.Line({
                 element: 'morris-line-chart',
                 data: [
@@ -202,7 +197,7 @@
         //mainApp.initFunction();
     //});
 
-}(jQuery));
+}(jQuery));*/
 
 /*单选框*/
 (function( $ ){
@@ -262,3 +257,4 @@ $(function() {
 
     };
 });
+

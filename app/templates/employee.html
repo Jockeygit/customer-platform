@@ -33,9 +33,7 @@
                 <div class="col-md-12">
                     <div class="panel panel-default">
                         <div class="panel-heading" style="text-align:right," >
-                            <button type="button" class="btn btn-info"  data-toggle="modal" data-target="#myModal">
-                                <span class="glyphicon glyphicon-plus"></span> 新增员工
-                            </button>
+
                         </div>
                     </div>
                     <div class="panel panel-default">
@@ -76,19 +74,19 @@
                     <div class="form-group">
                         <label class="col-sm-3 control-label">员工名称</label>
                         <div class="col-sm-8">
-                            {{employee_form.name(required="", class="form-control")}}
+                            {{employee_form.name(required="", class="form-control", id="employee_name")}}
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-3 control-label">部门</label>
                         <div class="col-sm-8">
-                            {{employee_form.department(required="", class="form-control")}}
+                            {{employee_form.department(required="", class="form-control", id="department_name")}}
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-3 control-label">职位</label>
                         <div class="col-sm-8">
-                            {{employee_form.position(required="", class="form-control")}}
+                            {{employee_form.position(required="", class="form-control", id="position_name")}}
                         </div>
                     </div>
                 </div>
@@ -115,6 +113,7 @@
     <script src="static/assets/js/dataTables/dataTables.bootstrap.js"></script>
     <script src="static/assets/js/toastr.min.js"></script>
     <script>
+        employee_list={}
         $(document).ready(function () {
             $('#dataTables').dataTable({
                 "oLanguage": {
@@ -137,6 +136,10 @@
                 "ajax": {
                     url :  "/employee/listJson" ,
                     dataSrc: function (json) {
+                        for(var i = 0; i<json.data.length;i++){
+                            var emp = json.data[i];
+                            employee_list[emp.id] = emp;
+                        }
                         return json.data;
                     }
                 },
@@ -147,14 +150,26 @@
                     {"data": "position"},
                     {
                         "render": function(data, type,row) {
+                            var id = '"' + row.id + '"';
                             var html="<div> <button type='button' class = 'btn btn-info btn-sm' data-toggle='modal' data-target='#updateModal'" +
-                                        " style='font-size: 12px; padding: 2px 10px;'>编辑</button></div>";
+                                        "onclick='setDefaultData("+id+")' style='font-size: 12px; padding: 2px 10px;'>编辑</button></div>";
 
                             return html
                     }}
                 ]
             } );
         });
+
+        //编辑设置默认值
+    function setDefaultData(id){
+        var data = employee_list[id];
+        update_id=id;
+
+        $("#employee_form #employee_name").val(data.name);
+
+        $("#employee_form #position_name option").filter(function(){return $(this).text()==data.position;}).prop("selected",true);
+        $("#employee_form #department_name option").filter(function(){return $(this).text()==data.department;}).prop("selected",true);
+    }
     </script>
 
 

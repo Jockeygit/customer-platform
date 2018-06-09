@@ -10,6 +10,28 @@
     li { display: inline-block;}
     input.labelauty + label { font: 12px "Microsoft Yahei";}
     ul,li {margin:0;padding:0;}
+    .btn_style{
+        font-size: 12px;
+        padding: 2px 10px;
+        margin:1px 5px
+    }
+    .green_style{
+        background-color:#5cb85c;
+        font-size: 12px;
+        padding: 2px 10px;
+        border-color: #4cae4c;
+        margin:1px 5px
+    }
+    a.green_style.disabled{
+        color:white
+    }
+    .red_style{
+        background-color:#d9534f;
+        font-size: 12px;
+        padding: 2px 10px;
+        border-color: #d43f3a;
+        margin:1px 5px
+    }
 </style>
 {% endblock %}
 
@@ -225,14 +247,22 @@
                         //var row = JSON.stringify(row).replace(/\"/g,"'")
                         //console.log(row)
                         if("id" in row){
-                            var html = "<a onclick='setChargeData(\""+row.cus_id+"\")' class='delete btn btn-default btn-xs' data-toggle='modal' data-target='#chargeModal' >收费<i class='fa fa-times'></i> </a>";
-                            html += "<a onclick='setDefaultData(\""+row.cus_id+"\")' class='up btn btn-default btn-xs' data-toggle='modal' data-target='#contractModal'><i class='fa fa-arrow-up'></i> 编辑</a>";
+                            console.log(row.is_charge)
+                            if(row.is_charge==0)
+                                var html = "<a onclick='setChargeData(\""+row.cus_id+"\")' type='button' class = 'btn btn-info btn-sm edit-btn green_style' data-toggle='modal' data-target='#chargeModal' >收费 </a>";
+                            else
+                                var html = "<a type='button' class = 'btn btn-sm edit-btn green_style disabled' >收费 </a>";
+                            html += "<a onclick='setDefaultData(\""+row.cus_id+"\")' type='button' class = 'btn btn-info btn-sm edit-btn btn_style' data-toggle='modal' data-target='#contractModal'> 编辑</a>";
+                            html += "<a onclick='setDelId("+row.cus_id+")'  type='button' class = 'btn btn-info btn-sm edit-btn red_style' data-toggle='modal' data-target='#deleteModal'> 删除</a>"
                         }
                         else {
-                            var html = "<a class='delete btn btn-default btn-xs disabled'>收费<i class='fa fa-times'></i> </a>";
-                            html += "<a class='up btn btn-default btn-xs disabled'><i class='fa fa-arrow-up'></i> 编辑</a>";
+
+                        //    var html = "<a  type='button' class = 'btn btn-info btn-sm edit-btn disabled green_style'>收费</i> </a>";
+                        //    html += "<a type='button' class='btn btn-info btn-sm edit-btn disabled btn_style'>编辑</a>";
+                       //  html += "<a type='button' class='btn btn-info btn-sm edit-btn disabled red_style'>删除</a>";
+                       html = "<a> </a>"
                         }
-                        html += "<a onclick='setDelId("+row.cus_id+")'  class='down btn btn-default btn-xs' data-toggle='modal' data-target='#deleteModal'><i class='fa fa-arrow-down'></i> 删除</a>"
+
                         return html;
                     }}],
                 'bStateSave': true,
@@ -281,6 +311,24 @@
         });
         $('html').css('font-size','14px');
     </script>
+
+    <script>
+        var update_id;
+        function setDefaultData(name){
+            $.ajax({
+                url:"contract/listJson?name="+name,
+                type:"get",
+                dataType: 'json',
+                processData:false,
+                contentType:false,
+                success:function(data0){
+                data = data.data[0]
+                update_id=data.id;
+                contractModal
+        }
+
+    </script>
+
     <script>
         cus_id='';
         con_id='';
@@ -327,6 +375,7 @@
         }
 
         function updateContract() {
+            console.log("dg")
             var form= new FormData(document.getElementById("contract_form"));
             $.ajax({
                 url:"/contract/update/"+con_id,
@@ -400,7 +449,7 @@
                 $("#contract_form #status-0").prop("checked",true);
                 $("#contract_form #status-1").removeAttr("checked");
             }
-            else if(data.status=="-"){
+            else if(data.status==" "){
                 $("#contract_form #status-1").removeAttr("checked");
                 $("#contract_form #status-0").removeAttr("checked");
             }
@@ -483,7 +532,6 @@
 
         }
     </script>
-
          <!-- Custom Js -->
 
 

@@ -36,7 +36,7 @@
                     <!-- Advanced Tables -->
                     <div class="panel panel-default">
                         <div class="panel-heading" style="text-align:right," >
-                            <button type="button" class="btn btn-info"  data-toggle="modal" data-target="#myModal">
+                            <button type="button" id="add_depart" class="btn btn-info"  data-toggle="modal" data-target="#myModal">
                                 <span class="glyphicon glyphicon-plus"></span> 新增部门
                             </button>
                         </div>
@@ -176,6 +176,11 @@
             });
         }
 
+         $("body").on('click',"#add_depart", function () {
+            var f = document.forms[0];        //获取表单DOM
+            f.reset();
+        })
+
         function addDepartment(){
         var form= new FormData(document.getElementById("add_depart_form"));
         $.ajax({
@@ -208,9 +213,9 @@
             depart_id=id;
         }
         function updateDepartment(){
-        var form= new FormData(document.getElementById("add_depart_form"));
+        var form= new FormData(document.getElementById("update_depart_form"));
         $.ajax({
-            url:"/depart/update/+id",
+            url:"/depart/update/"+depart_id,
             type:"post",
             data:form,
             dataType: 'json',
@@ -218,7 +223,7 @@
             contentType:false,
             success:function(data){
                 if(data.result == 1){
-                    $("#myModal .btn-default").click();
+                    $("#updateModal .btn-default").click();
                     $("#treegrid").html("");
                     init()
                     toastr.success("修改部门成功")
@@ -247,7 +252,7 @@
         console.log(val_name,val_parent);
 
         $("#update_depart_form #name").val(val_name);
-        $("#update_depart_form #parent").find("option[text='"+val_parent+"']").prop("selected",true);
+        $("#update_depart_form #parent option").filter(function(){return $(this).text()==val_parent;}).prop("selected",true);
 
     });
     </script>

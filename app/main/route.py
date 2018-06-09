@@ -43,19 +43,6 @@ def customer():
     print(request.data)
     add_custom_form = forms.customerForm()
     update_custom_form = forms.updateCustomerForm()
-    """
-    if add_custom_form.validate_on_submit():
-        print("valid")
-        flash('创建客户')
-        customer = Customer(name=add_custom_form.customername.data, type=add_custom_form.type.data, phone=add_custom_form.phone.data, email=add_custom_form.email.data,address=add_custom_form.address.data, account_id=add_custom_form.manager.data)
-        db.session.add(customer)
-        db.session.commit()
-        return redirect(url_for('main.index'))
-    else:
-        if add_custom_form.errors:
-            print(str(list(add_custom_form.errors.values())[0]).strip("[]'"))
-            flash(str(list(add_custom_form.errors.values())[0]).strip("[]'"))
-    """
     return render_template('customer.html', add_form=add_custom_form, update_form=update_custom_form)
 
 
@@ -72,12 +59,11 @@ def customer_add():
         return jsonify({'result': '1'})
     else:
         if add_custom_form.errors:
-            # print(str(list(add_custom_form.errors.values())[0]).strip("[]'"))
             result = str(list(add_custom_form.errors.values())[0]).strip("[]'")
             return jsonify({'result': '%s' % result})
 
 
-@view.route('/customer/import', methods=['POST'], strict_slashes=False)
+@view.route('/customer/import', methods=['POST'])
 @login_required
 def customer_import():
     basedir = os.path.abspath(os.path.dirname(__file__))
@@ -106,9 +92,9 @@ def customer_import():
             row_date = sh.row_values(i)
             print(row_date)
             n = i - 1
-            max_id = db.session.query(db.func.max(Customer.id)).scalar()
+            #max_id = db.session.query(db.func.max(Customer.id)).scalar()
             customer = Customer()
-            customer.id = max_id + 1
+            #customer.id = max_id + 1
             customer.name = row_date[0]
             if row_date[1] == u"个人":
                 customer.type = 0
@@ -122,8 +108,8 @@ def customer_import():
             db.session.add(customer)
             db.session.commit()
             db.session.close()
-            os.remove(file_path)  # 删除导入的文件
-    return "1"
+           # os.remove(file_path)  # 删除导入的文件
+    return jsonify({'result': "1"})
 
 
 @view.route('/customer/export', methods=['POST'])
@@ -216,8 +202,8 @@ def customer_del():
         db.session.delete(customer)
         db.session.commit()
     except Exception:
-        return "0"
-    return "1"
+        return jsonify({'result': '0'})
+    return jsonify({'result': '1'})
 
 
 @view.route('/customer/listJson')
@@ -304,7 +290,13 @@ def contract_list():
                 Data['status'] = u"生效"
             Data["start_date"] = contract.start_date
             Data["expiry_date"] = contract.expiry_date
-            Data["is_charge"] = contract.isCheck
+
+            # 是否收费
+            record = Record.query.filter(Record.contract_id == contract.id).first()
+            if record:
+                Data["is_charge"] = "1"
+            else:
+                Data["is_charge"] = contract.isCheck
 
             # 服务项目
             agree_name = ''
@@ -315,11 +307,11 @@ def contract_list():
             Data['agreements'] = agree_name
         else:
             Data["is_create"] = 0
-            Data['status'] = '-'
-            Data["start_date"] = '-'
-            Data["expiry_date"] = '-'
-            Data["is_charge"] = '-'
-            Data['agreements'] = '-'
+            Data['status'] = ' '
+            Data["start_date"] = ' '
+            Data["expiry_date"] = ' '
+            Data["is_charge"] = ' '
+            Data['agreements'] = ' '
 
         jsonData.append(Data)
 
@@ -408,6 +400,7 @@ def contract_getchar():
         print(agree.id)
         price = db.session.query(Agreement.price).filter_by(id=agree.id).first()[0]
         charge = charge + price
+    charge = '%.2f' % float(charge)
     return jsonify({'result': '%s' % charge})
 
 
@@ -462,7 +455,8 @@ def record_list():
             print(record)
             if record:
                 Data["id"] = record.id
-                Data["charge"] = record.charge
+                charge = '%.2f' % float(record.charge)
+                Data["charge"] = charge
                 Data["charge_date"] = record.charge_date
                 Data["description"] = record.description
 
@@ -692,6 +686,8 @@ def depart_update(id):
     form = forms.departmentFrom()
     if form.validate_on_submit():
         department = Department.query.filter(Department.id==id).first()
+        department.name = form.name.data
+        department.parent_id = form.parent.data
         db.session.add(department)
         db.session.commit()
         return jsonify({'result': '1'})
@@ -785,26 +781,31 @@ def report_data():
     for cus in CustomerId:
         cuslist.append(cus.id)
     user_con = db.session.query(Contract.id).filter(Contract.customer_id.in_(cuslist)).count()
-
+    print('cuslist:' '%s' % cuslist)
     # 收费统计数据
     sum_char = db.session.query(func.sum(Record.charge)).scalar()
     sum_char = float(sum_char)
-    contractId = Contract.query.filter(Contract.customer_id.in_(cuslist)).all()
+    contractId = Contract.query.filter(Contract.id.in_(cuslist)).all()
+    print('合同:' '%s' % contractId)
     conlist = []
     for con in contractId:
         conlist.append(con.id)
+    print('客户:' '%s' % conlist)
     user_char = db.session.query(func.sum(Record.charge)).filter(Record.contract_id.in_(conlist)).scalar()
-    user_char = float(user_char)
+    print('收费:' '%s' % user_char)
+    #user_char = float(user_char)
 
     data = {}
     data['sum_cus_per'] = sum_cus_per
     data['user_cus_per'] = user_cus_per
     data['sum_cus_com'] = sum_cus_com
     data['user_cus_com'] = user_cus_com
+
     data['sum_con'] = sum_con
     data['user_con'] = user_con
     data['sum_char'] = sum_char
-    data['user_char'] = user_char
+
+    data['user_char'] = int(user_char)
 
     jsonData = []
     jsonData.append(data)
