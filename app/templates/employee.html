@@ -92,7 +92,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-primary" onclick="">确定</button>
+                    <button type="button" class="btn btn-primary" onclick="updataEmployee()">确定</button>
                 </div>
                 </form>
             </div>
@@ -170,6 +170,41 @@
         $("#employee_form #position_name option").filter(function(){return $(this).text()==data.position;}).prop("selected",true);
         $("#employee_form #department_name option").filter(function(){return $(this).text()==data.department;}).prop("selected",true);
     }
+
+    function updataEmployee(){
+        var form = new FormData(document.getElementById("employee_form"));
+        $.ajax({
+            url:"/employ/update/"+update_id,
+            type:"post",
+            data:form,
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data){
+                if(data.result == 1){
+                    setTimeout($("#updateModal .btn-default").click(),1000);
+                    toastr.success("修改员工信息成功")
+                    $("#dataTables").DataTable().ajax.reload(null, false);
+                }
+                else {
+                    var body = '<div class="alert alert-warning"> <button type="button" class="close" data-dismiss="alert">&times;</button>'+data.result+ '</div>'
+
+                    $('#employee_form .modal-body').prepend(body)
+                }
+
+            },
+             error:function(e){
+                toastr.success("修改员工信息失败")
+            }
+        })
+
+    }
+
+
+
+
+
+
     </script>
 
 
