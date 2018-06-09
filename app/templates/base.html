@@ -1,30 +1,477 @@
 <!DOCTYPE html>
-{% extends "bootstrap/base.html" %}
-{% block navbar %}
-<div class="navbar navbar-inverse" role="navigation">
-    <div class="container">
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav navbar-right">
-                {% if page == "register" %}
-                <li><a href="{{ url_for('view.login') }}">登录</a></li>
-                {% else %}
-                <li><a href="{{ url_for('view.register') }}">注册</a></li>
-                {% endif %}
+<html>
+
+<head>
+    {% block title %}
+        <title>客户管理平台</title>
+    {% endblock %}
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Bootstrap Styles-->
+    <link href="static/assets/css/bootstrap.css" rel="stylesheet" />
+    <!-- FontAwesome Styles-->
+    <link href="static/assets/css/font-awesome.css" rel="stylesheet" />
+    <!-- Custom Styles-->
+
+    <link href="static/assets/css/custom-styles.css" rel="stylesheet" />
+
+    <!-- Google Fonts-->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+    {% block head_js %}
+    <!-- Morris Chart Styles-->
+    <link href="static/assets/js/morris/morris-0.4.3.min.css" rel="stylesheet" />
+    {% endblock %}
+</head>
+
+<body>
+    {% block wrapper %}
+    <div id="wrapper">
+        {% endblock %}
+        {% block nav %}
+        <nav class="navbar navbar-default top-navbar" role="navigation">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{{ url_for('main.index') }}"><b>cms</b></a>
+            </div>
+
+            <ul class="nav navbar-top-links navbar-right" style="padding-right: 20px;">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                        <i class="fa fa-envelope fa-fw"></i> <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-messages">
+                        <li>
+                            <a href="#">
+                                <div>
+                                    <strong>主管信息</strong>
+                                    <span class="pull-right text-muted">
+                                        <em>今天</em>
+                                    </span>
+                                </div>
+                                <div>你今天去把绿城公司的续约金收一下，合同放到我办公室</div>
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#">
+                                <div>
+                                    <strong>系统通知</strong>
+                                    <span class="pull-right text-muted">
+                                        <em>昨天</em>
+                                    </span>
+                                </div>
+                                <div>你被分配了一个新的客户，请及时处理</div>
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#">
+                                <div>
+                                    <strong>系统通知</strong>
+                                    <span class="pull-right text-muted">
+                                        <em>昨天</em>
+                                    </span>
+                                </div>
+                                <div>你有一个待办事项即将过期，请及时处理</div>
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a class="text-center" href="#">
+                                <strong>更多信息</strong>
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-messages -->
+                </li>
+                <!-- /.dropdown -->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                        <i class="fa fa-tasks fa-fw"></i> <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-tasks">
+                        <li>
+                            <a href="#">
+                                <div>
+                                    <p>
+                                        <strong>任务 1</strong>
+                                        <span class="pull-right text-muted">60% 完成</span>
+                                    </p>
+                                    <div class="progress progress-striped active">
+                                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%">
+                                            <span class="sr-only">60% Complete (success)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#">
+                                <div>
+                                    <p>
+                                        <strong>任务 2</strong>
+                                        <span class="pull-right text-muted">28% 完成</span>
+                                    </p>
+                                    <div class="progress progresfs-striped active">
+                                        <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="28" aria-valuemin="0" aria-valuemax="100" style="width: 28%">
+                                            <span class="sr-only">28% Complete</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#">
+                                <div>
+                                    <p>
+                                        <strong>任务 3</strong>
+                                        <span class="pull-right text-muted">60% 完成</span>
+                                    </p>
+                                    <div class="progress progress-striped active">
+                                        <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%">
+                                            <span class="sr-only">60% Complete (warning)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#">
+                                <div>
+                                    <p>
+                                        <strong>任务 4</strong>
+                                        <span class="pull-right text-muted">85% 完成</span>
+                                    </p>
+                                    <div class="progress progress-striped active">
+                                        <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100" style="width: 85%">
+                                            <span class="sr-only">85% Complete (danger)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a class="text-center" href="#">
+                                <strong>更多任务</strong>
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-tasks -->
+                </li>
+                <!-- /.dropdown -->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                        <i class="fa fa-bell fa-fw"></i> <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-alerts">
+                        <li>
+                            <a href="#">
+                                <div>
+                                    <i class="fa fa-comment fa-fw"></i> 新评论
+                                    <span class="pull-right text-muted small">4 分钟</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#">
+                                <div>
+                                    <i class="fa fa-twitter fa-fw"></i> 新关注
+                                    <span class="pull-right text-muted small">12 分钟</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#">
+                                <div>
+                                    <i class="fa fa-envelope fa-fw"></i> 发送信息
+                                    <span class="pull-right text-muted small">4 分钟</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#">
+                                <div>
+                                    <i class="fa fa-tasks fa-fw"></i> 新任务
+                                    <span class="pull-right text-muted small">4 分钟</span>
+                                </div>
+                            </a>
+                        </li>
+
+
+                        <li class="divider"></li>
+                        <li>
+                            <a class="text-center" href="#">
+                                <strong>更多...</strong>
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-alerts -->
+                </li>
+                <!-- /.dropdown -->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                        {% if current_user.head_image%}
+                            <img   src="{{current_user.head_image}}" style="height:50px;width:50px">
+                        {%else%}
+                            <img src="/static/assets/img/0.jpg" style="height:30px;width:30px" class="img-circle">
+                        {%endif%}
+                        <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+
+                        <li><a href="{{ url_for('main.depart') }}"><i class="fa fa-gear fa-fw"></i> 部门设置</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li><a href="#" data-toggle="modal" data-target="#exitModal"><i class="fa fa-sign-out fa-fw" ></i> 注销 </a>
+                        </li>
+                    </ul>
+                    <!-- /.dropdown-user -->
+                </li>
+                <!-- /.dropdown -->
             </ul>
+        </nav>
+        <!--/. NAV TOP  -->
+        <nav class="navbar-default navbar-side" role="navigation">
+            <div class="sidebar-collapse">
+                <ul class="nav" id="main-menu">
+                    {% block sidebar %}
+                    <li>
+                        <a class="active-menu" href="{{ url_for('main.index') }}"><i class="fa fa-dashboard"></i> 首页</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('main.customer') }}"><i class="fa fa-desktop"></i> 客户</a>
+                    </li>
+					<li>
+                        <a href="#"><i class="fa fa-bar-chart-o"></i> 合同<span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li>
+                                <a href="{{ url_for('main.contract') }}"> 合同管理</a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('main.record') }}"> 收费记录</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('main.todo') }}"><i class="fa fa-table"></i> 待办事项</a>
+                    </li>
+                    <li>
+                        <a href="empty.html"><i class="fa fa-fw fa-file"></i> 工作报告</a>
+                    </li>
+                    {% endblock %}
+                </ul>
+            </div>
+        </nav>
+        {% endblock %}
+        <!-- /. NAV SIDE  -->
+        {% block content %}
+        <div id="page-wrapper">
+            <div id="page-inner">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1 class="page-header">
+                            Dashboard <small>数据一览</small>
+                        </h1>
+                    </div>
+                </div>
+
+                <!-- /. ROW  -->
+
+                <div class="row">
+                    <div class="col-md-3 col-sm-12 col-xs-12">
+                        <div class="panel panel-primary text-center no-boder bg-color-green green">
+                            <div class="panel-left pull-left green">
+                                <i class="fa fa-bar-chart-o fa-5x"></i>
+
+                            </div>
+                            <div class="panel-right pull-right" id="personal-customer-summary">
+								<h3>8,457</h3>
+                               <strong> 个人级客户总数</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-12 col-xs-12">
+                        <div class="panel panel-primary text-center no-boder bg-color-blue blue">
+                              <div class="panel-left pull-left blue">
+                                <i class="fa fa-shopping-cart fa-5x"></i>
+								</div>
+
+                            <div class="panel-right pull-right" id="company-customer-summary">
+							<h3>52,160 </h3>
+                               <strong> 企业级客户总数</strong>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-12 col-xs-12">
+                        <div class="panel panel-primary text-center no-boder bg-color-red red">
+                            <div class="panel-left pull-left red">
+                                <i class="fa fa fa-comments fa-5x"></i>
+
+                            </div>
+                            <div class="panel-right pull-right" id="contract-summary">
+							 <h3>15,823 </h3>
+                               <strong> 合同总数 </strong>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-12 col-xs-12">
+                        <div class="panel panel-primary text-center no-boder bg-color-brown brown">
+                            <div class="panel-left pull-left brown">
+                                <i class="fa fa-users fa-5x"></i>
+
+                            </div>
+                            <div class="panel-right pull-right" id="record-summary">
+							<h3>36,752 </h3>
+                             <strong>收费金额总数</strong>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+		<div class="row">
+			<div class="col-xs-6 col-md-3">
+				<div class="panel panel-default">
+					<div class="panel-body easypiechart-panel">
+						<h4>本用户占比</h4>
+						<div class="easypiechart" id="easypiechart-personal" data-percent="0" ><span class="percent">0%</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-6 col-md-3">
+				<div class="panel panel-default">
+					<div class="panel-body easypiechart-panel">
+						<h4>本用户占比</h4>
+						<div class="easypiechart" id="easypiechart-company" data-percent="0" ><span class="percent">0%</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-6 col-md-3">
+				<div class="panel panel-default">
+					<div class="panel-body easypiechart-panel">
+						<h4>本用户占比</h4>
+						<div class="easypiechart" id="easypiechart-contract" data-percent="0" ><span class="percent">0%</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-6 col-md-3">
+				<div class="panel panel-default">
+					<div class="panel-body easypiechart-panel">
+						<h4>本用户占比</h4>
+						<div class="easypiechart" id="easypiechart-record" data-percent="0" ><span class="percent">0%</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div><!--/.row-->
+
+				<div class="row">
+				<div class="col-md-12">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							客户新增时间线
+						</div>
+						<div class="panel-body">
+							<div id="morris-line-chart"></div>
+						</div>
+					</div>
+					</div>
+				</div>
+
+
+
+                <div class="row">
+                    <div class="col-md-9 col-sm-12 col-xs-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                收费统计时间线
+                            </div>
+                            <div class="panel-body">
+                                <div id="morris-bar-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-sm-12 col-xs-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                任务完成度
+                            </div>
+                            <div class="panel-body">
+                                <div id="morris-donut-chart"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- /. ROW  -->
+
+
+
+
+
+
+                <!-- /. ROW  -->
+				<footer><p>All right reserved. Template by: <a href="http://webthemez.com">WebThemez</a></p></footer>
+            </div>
+            <!-- /. PAGE INNER  -->
         </div>
+        <!-- /. PAGE WRAPPER  -->
+        {% endblock %}
+        {% block nav_modal %}
+        <div class="modal fade" id="exitModal" tabindex="-1" role="dialog" aria-labelledby="exitModalLabel" aria-hidden="true">
+            <div class="modal-dialog" style="width:350px">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>确定退出吗？</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <a href="{{ url_for('auth.logout') }}" class="btn btn-primary" role="button" >确定</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
     </div>
-</div>
-{% endblock %}
+    <!-- /. WRAPPER  -->
+    <!-- JS Scripts-->
+    <!-- jQuery Js -->
+    <script src="static/assets/js/jquery-1.10.2.js"></script>
+    <!-- Bootstrap Js -->
+    <script src="static/assets/js/bootstrap.min.js"></script>
 
-{% block content %}
-<div class="container">
-    {% for message in get_flashed_messages() %}
-    <div class="alert alert-warning">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-        {{ message }}
-    </div>
-    {% endfor %}
+    <!-- Metis Menu Js -->
+    <script src="static/assets/js/jquery.metisMenu.js"></script>
 
-    {% block page_content %}{% endblock %}
-</div>
-{% endblock %}
+
+    {% block bottom_js %}
+    <script src="static/assets/js/custom-scripts.js"></script>
+    {% endblock %}
+</body>
+
+</html>

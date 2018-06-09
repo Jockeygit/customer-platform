@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/customer-platform.iml" filepath="$PROJECT_DIR$/.idea/customer-platform.iml" />
+      <module fileurl="file://$USER_HOME$/Downloads/graduation/源码示范/microblog-master/.idea/microblog-master.iml" filepath="$USER_HOME$/Downloads/graduation/源码示范/microblog-master/.idea/microblog-master.iml" />
     </modules>
   </component>
 </project>

@@ -1,0 +1,539 @@
+{% extends 'base.html' %}
+
+{% block head_js %}
+<link href="static/assets/js/dataTables/dataTables.bootstrap.css" rel="stylesheet" />
+<link rel="stylesheet" href="static/assets/css/bootstrap-datepicker3.css">
+<link rel="stylesheet" href="static/assets/css/component-chosen.min.css">
+<link rel="stylesheet" href="static/assets/css/toastr.min.css">
+<style>
+    ul { list-style-type: none;}
+    li { display: inline-block;}
+    input.labelauty + label { font: 12px "Microsoft Yahei";}
+    ul,li {margin:0;padding:0;}
+    .btn_style{
+        font-size: 12px;
+        padding: 2px 10px;
+        margin:1px 5px
+    }
+    .green_style{
+        background-color:#5cb85c;
+        font-size: 12px;
+        padding: 2px 10px;
+        border-color: #4cae4c;
+        margin:1px 5px
+    }
+    a.green_style.disabled{
+        color:white
+    }
+    .red_style{
+        background-color:#d9534f;
+        font-size: 12px;
+        padding: 2px 10px;
+        border-color: #d43f3a;
+        margin:1px 5px
+    }
+</style>
+{% endblock %}
+
+{% block sidebar %}
+                    <li>
+                        <a href="{{ url_for('main.index') }}"><i class="fa fa-dashboard"></i> 首页</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('main.customer') }}"><i class="fa fa-desktop"></i> 客户</a>
+                    </li>
+					<li>
+                        <a href="#"><i class="fa fa-bar-chart-o"></i> 合同<span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li>
+                                <a class="active-menu" href="{{ url_for('main.contract') }}">合同管理</a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('main.record') }}">收费记录</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('main.todo') }}"><i class="fa fa-table"></i> 待办事项</a>
+                    </li>
+                    <li>
+                        <a href="empty.html"><i class="fa fa-fw fa-file"></i> 工作报告</a>
+                    </li>
+{% endblock %}
+
+{% block content %}
+<div id="page-wrapper" class="gray-bg dashbard-1">
+        <div class="content-main">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="dataTables-contact">
+                                    <thead>
+                                        <tr>
+                                            <th>客户名称</th>
+                                            <th style='padding-left: 30px'>合同</th>
+                                            <th>服务项目</th>
+                                            <th>开始日</th>
+                                            <th>到期日</th>
+                                            <th>状态</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <div class="modal fade modal-center" id="contractModal" tabindex="-1" role="dialog" aria-labelledby="contractModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="font-weight: normal;">
+                <div class="modal-header" style="text-align:left">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="contractModalLabel">创建合同</h4>
+                </div>
+                <!-- add_customer_form -->
+                <form role="form" class="form-horizontal" id="contract_form" data-toggle="validator">
+                    {{ form.csrf_token }}
+                    <div class="modal-body">
+                        {%for message in get_flashed_messages()%}
+                        <div class="alert alert-warning">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            {{message}}
+                        </div>
+                        {%endfor%}
+                        <div class="form-group" >
+                            <label class="col-sm-3 control-label">收费项目</label>
+                            <div class="col-sm-8">
+                                {{form.agreement(required="", class="form-control form-control-chosen",style="font-size:14px",id="update_name")}}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">开始日期</label>
+                            <div class="col-sm-8 date" data-provide="datepicker" data-date-format="yyyy-mm-dd" style="display: table;">
+                                {{form.startDate(class="form-control",id="update_startDate")}}
+                                <div class="input-group-addon">
+                                    <span class="glyphicon glyphicon-th"></span>
+                                </div>
+                            </div>
+					    </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">到期日期</label>
+
+                            <div class="col-sm-8 date" data-provide="datepicker" data-date-format="yyyy-mm-dd" style="display: table;">
+                                {{form.expiryDate(class="form-control",id="update_expiryDate")}}
+                            <div class="input-group-addon">
+                                <span class="glyphicon glyphicon-th"></span>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">合同状态</label>
+                            <div class="col-sm-8">
+                                {{form.status()}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class = "btn btn-primary">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width:350px">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>确定删除合同吗？</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-danger" onclick="deleteContract()">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <div class="modal fade modal-center" id="chargeModal" tabindex="-1" role="dialog" aria-labelledby="chargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="text-align:left">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="chargeModalLabel">收费</h4>
+                </div>
+                <<form role="form" class="form-horizontal" id="charge_form" data-toggle="validator">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">应收</label>
+                        <div class=" input-group col-sm-8 " style="padding-left: 15px;padding-right: 15px;">
+                            <input type="text" class="form-control" id="charge">
+                            <span class="input-group-addon">元</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">收费日期</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="charge_date">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">说明</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="description">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary" onclick="chargeContract()">确定</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    </div>
+
+    <!--//grid-->
+    <!---->
+    <div class="copy">
+        <p></p>
+    </div>
+{% endblock %}
+
+{% block bottom_js %}
+    <script src="static/assets/js/dataTables/jquery.dataTables.js"></script>
+    <script src="static/assets/js/dataTables/dataTables.bootstrap.js"></script>
+    <script type="text/javascript" src="static/assets/js/validator.min.js"></script>
+    <script src="static/assets/js/chosen.jquery.js"></script>
+    <script src="static/assets/js/custom-scripts.js"></script>
+    <script src="static/assets/js/bootstrap-datepicker.js"></script>
+    <script src="static/assets/js/toastr.min.js"></script>
+    <script>
+        contract_list = {};
+        $(document).ready(function () {
+            $('#dataTables-contact').dataTable({
+                "oLanguage": {
+                 "sSearch":"请输入查找关键字： ",
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sZeroRecords": "抱歉， 没有找到",
+                "sInfo": "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
+                "sInfoEmpty": "没有数据",
+                "sInfoFiltered": "(从 _MAX_ 条数据中检索)",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "前一页",
+                    "sNext": "后一页",
+                    "sLast": "尾页"
+                    }
+                },
+                "sDom": "lfrtip",
+                "iDisplayLength": 15,
+                "columnDefs" : [ {
+                 //定义操作列,######以下是重点########
+                 "targets" : 6,//操作按钮目标列
+                 "data" : null,
+                    "render" : function(data, type,row) {
+                        var id = '"' + row.id + '"';
+                        //var row = JSON.stringify(row).replace(/\"/g,"'")
+                        //console.log(row)
+                        if("id" in row){
+                            console.log(row.is_charge)
+                            if(row.is_charge==0)
+                                var html = "<a onclick='setChargeData(\""+row.cus_id+"\")' type='button' class = 'btn btn-info btn-sm edit-btn green_style' data-toggle='modal' data-target='#chargeModal' >收费 </a>";
+                            else
+                                var html = "<a type='button' class = 'btn btn-sm edit-btn green_style disabled' >收费 </a>";
+                            html += "<a onclick='setDefaultData(\""+row.cus_id+"\")' type='button' class = 'btn btn-info btn-sm edit-btn btn_style' data-toggle='modal' data-target='#contractModal'> 编辑</a>";
+                            html += "<a onclick='setDelId("+row.cus_id+")'  type='button' class = 'btn btn-info btn-sm edit-btn red_style' data-toggle='modal' data-target='#deleteModal'> 删除</a>"
+                        }
+                        else {
+
+                        //    var html = "<a  type='button' class = 'btn btn-info btn-sm edit-btn disabled green_style'>收费</i> </a>";
+                        //    html += "<a type='button' class='btn btn-info btn-sm edit-btn disabled btn_style'>编辑</a>";
+                       //  html += "<a type='button' class='btn btn-info btn-sm edit-btn disabled red_style'>删除</a>";
+                       html = "<a> </a>"
+                        }
+
+                        return html;
+                    }}],
+                'bStateSave': true,
+                "ajax": {
+                    url :  "/contract/listJson" ,
+                    dataSrc: function (json) {
+                        for(var i = 0; i<json.data.length;i++){
+                            var con = json.data[i];
+                            console.log(con);
+                            contract_list[con.cus_id] = con;
+                        }
+                        console.log(contract_list);
+                        return json.data;
+                    }
+                },
+
+                "columns": [
+                    {"data": "cus_name"},
+                    {
+                        "data": "is_create",
+                        "render":function ( data, type, row, meta ) {
+                            if(row.is_create == 0){
+                                html="<div> <button type='button' class = 'btn btn-info' data-toggle='modal' data-target='#contractModal'" +
+                                        "onclick='storeCustomerId(\""+row.cus_id+"\")' style='font-size: 12px; padding: 4px 14px;' >创建合同</button></div>"
+
+                            }
+                            else{
+                                html="<div><span>已创建</span></div>"
+                            }
+                            return html
+                        }
+                    },
+                    {"data": "agreements"},
+                    {"data": "start_date"},
+                    {"data": "expiry_date"},
+                    {"data": "status"},
+                    {"data": "is_charge"},
+
+                ]
+                　
+
+            } );
+        });
+        $(function(){
+	        $(':input').labelauty();
+        });
+        $('html').css('font-size','14px');
+    </script>
+
+    <script>
+        var update_id;
+        function setDefaultData(name){
+            $.ajax({
+                url:"contract/listJson?name="+name,
+                type:"get",
+                dataType: 'json',
+                processData:false,
+                contentType:false,
+                success:function(data0){
+                data = data.data[0]
+                update_id=data.id;
+                contractModal
+        }
+
+    </script>
+
+    <script>
+        cus_id='';
+        con_id='';
+        del_id='';
+        function storeCustomerId(id) {
+            $("#contractModal").find(".modal-title").text("创建合同");
+            $("#contractModal").find(".btn-primary").attr("onclick","createContract()");
+            var f = document.forms[0];        //获取表单DOM
+            f.reset();
+            $("#update_name").chosen("destroy");
+            $('#update_name').chosen({
+                allow_single_deselect: true,
+                placeholder_text_multiple:"请选择服务项目",
+		        width: '100%'
+            });
+            cus_id = id;
+        }
+        function createContract() {
+            var form= new FormData(document.getElementById("contract_form"));
+            $.ajax({
+                url:"/contract/add/"+cus_id,
+                type:"post",
+                data:form,
+                dataType: 'json',
+                processData:false,
+                contentType:false,
+                success:function(data){
+                    if(data.result == 1){
+                        $("#contractModal").find(".btn-default").click()
+                        $("#dataTables-contact").DataTable().ajax.reload();
+                        toastr.success("合同创建成功");
+                    }
+                    else {
+                        var body = '<div class="alert alert-warning"> <button type="button" class="close" data-dismiss="alert">&times;</button>'+data.result+ '</div>'
+
+                        $('#'+id+' .modal-body').prepend(body)
+                    }
+
+                },
+                error:function(e){
+                        toastr.error("合同创建失败");
+                }
+            })
+        }
+
+        function updateContract() {
+            console.log("dg")
+            var form= new FormData(document.getElementById("contract_form"));
+            $.ajax({
+                url:"/contract/update/"+con_id,
+                type:"post",
+                data:form,
+                dataType: 'json',
+                processData:false,
+                contentType:false,
+                success:function(data){
+                    if(data.result == 1){
+                        $("#contractModal").find(".btn-default").click()
+                        $("#dataTables-contact").DataTable().ajax.reload();
+                        toastr.success("合同修改成功");
+                    }
+                    else {
+                        var body = '<div class="alert alert-warning"> <button type="button" class="close" data-dismiss="alert">&times;</button>'+data.result+ '</div>'
+
+                        $('#'+id+' .modal-body').prepend(body)
+                    }
+
+                },
+                error:function(e){
+                    toastr.error("合同修改失败");
+                }
+            })
+        }
+        function setDelId(cus_id) {
+            del_id = contract_list[cus_id].id;
+            console.log("lala")
+        }
+        function deleteContract() {
+            $.ajax({
+            url:"{{ url_for('main.contract_del') }}",
+            type:"post",
+            data:JSON.stringify({"id":del_id}),
+            dataType: 'text',
+            processData:false,
+            contentType:false,
+            success:function(data){
+                 if (data==1){
+                     console.log("del success");
+                     $("#dataTables-contact").DataTable().ajax.reload();
+
+                     $("#deleteModal .btn-default").click()
+                 }
+            },
+            error:function(e){
+                    alert("没有取得数据");
+            }
+        })
+        }
+
+        function setDefaultData(id){
+            var data = contract_list[id];
+            con_id = data.id;
+            $("#contractModal").find(".modal-title").text("编辑合同");
+            $("#contractModal").find(".btn-primary").attr("onclick","updateContract()");
+
+
+            //$("#contract_form #update_name").val(data.agreements);
+            $("#update_name").chosen("destroy");
+            $("#update_name").val("1");
+            $('#update_name').chosen({
+                allow_single_deselect: true,
+                placeholder_text_multiple:"请选择服务项目",
+		        width: '100%'
+            });
+            $("#contract_form #update_startDate").val(data.start_date);
+            $("#contract_form #update_expiryDate").val(data.expiry_date);
+            if(data.status=="未生效"){
+                $("#contract_form #status-0").prop("checked",true);
+                $("#contract_form #status-1").removeAttr("checked");
+            }
+            else if(data.status==" "){
+                $("#contract_form #status-1").removeAttr("checked");
+                $("#contract_form #status-0").removeAttr("checked");
+            }
+            else {
+                $("#contract_form #status-1").prop("checked",true);
+                $("#contract_form #status-0").removeAttr("checked");
+            }
+        }
+
+        function setChargeData(cus_id) {
+            var id = contract_list[cus_id].id;
+            charge_id=id;
+            console.log(cus_id+"  "+id);
+            $.ajax({
+            url:"{{ url_for('main.contract_getchar') }}",
+            type:"post",
+            data:JSON.stringify({"id":id}),
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data){
+                money = data.result;
+                console.log(money)
+                var modal = $("#charge_form");
+                modal.find("#charge").attr("disabled",true);
+                modal.find("#charge").val(money);
+                //设置时间
+                var date = new Date();
+                var seperator1 = "-";
+                var year = date.getFullYear();
+                var month = date.getMonth() + 1;
+                var strDate = date.getDate();
+                if (month >= 1 && month <= 9) {
+                    month = "0" + month;
+                }
+                if (strDate >= 0 && strDate <= 9) {
+                    strDate = "0" + strDate;
+                }
+                currentdate = year + seperator1 + month + seperator1 + strDate;
+
+                modal.find("#charge_date").val(currentdate);
+                modal.find("#charge_date").prop("disabled",true);
+
+            },
+            error:function(e){
+                    alert("没有取得数据");
+            }
+            })
+        }
+
+        function chargeContract() {
+            var form = {};
+            form.id = charge_id;
+            form.charge = money;
+            form.charge_date = currentdate;
+            form.description = $("#charge_form").find("#description").val();
+            $.ajax({
+            url:"/contract/char",
+            type:"post",
+            data:JSON.stringify(form),
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data){
+                 if (data.result==2){
+                     toastr.warning("该合同已收费");
+                     //$("#dataTables-contact").DataTable().ajax.reload();
+                 }
+                 else if(data.result==1)
+                    toastr.success("收费成功");
+                 else
+                     toastr.error("收费失败");
+
+                 //$("#chargeModal .btn-default").click();
+            },
+            error:function(e){
+                    alert("没有取得数据");
+            }
+        })
+
+        }
+    </script>
+         <!-- Custom Js -->
+
+
+{% endblock %}
+

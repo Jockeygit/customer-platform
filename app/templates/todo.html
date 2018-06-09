@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block head_js %}
+<link rel="stylesheet" href="static/assets/css/toastr.min.css">
+{% endblock %}
+
+{% block sidebar %}
+                    <li>
+                        <a href="{{ url_for('main.index') }}"><i class="fa fa-dashboard"></i> 首页</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('main.customer') }}"><i class="fa fa-desktop"></i> 客户</a>
+                    </li>
+					<li>
+                        <a href="#"><i class="fa fa-bar-chart-o"></i> 合同<span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li>
+                                <a  href="{{ url_for('main.contract') }}"> 合同管理</a>
+                            </li>
+                            <li>
+                                <a  href="{{ url_for('main.record') }}"> 收费记录</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a class="active-menu" href="{{ url_for('main.todo') }}"><i class="fa fa-table"></i> 待办事项</a>
+                    </li>
+                    <li>
+                        <a href="empty.html"><i class="fa fa-fw fa-file"></i> 工作报告</a>
+                    </li>
+
+{% endblock %}
+
+{% block content %}
+    <div id="page-wrapper" class="gray-bg dashbard-1">
+        <div class="content-main">
+            <iframe src="{{ url_for('main.subtodo') }}" name="subtodo"
+                     height="0" width="100%" scrolling="no" frameborder="0">
+
+            </iframe>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block bottom_js %}
+    <script src="static/assets/js/custom-scripts.js"></script>
+    <script src="static/assets/js/toastr.min.js"></script>
+         <!-- Custom Js -->
+    <script>
+        function reload_height() {
+            //$("iframe").height(subtodo.document.body.scrollHeight);
+            $("iframe").height("3000px");
+        }
+    </script>
+{% endblock %}
+

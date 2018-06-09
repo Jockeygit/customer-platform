@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+
+{% block head_js %}
+<link href="static/assets/js/dataTables/dataTables.bootstrap.css" rel="stylesheet" />
+<link rel="stylesheet" href="static/assets/css/toastr.min.css">
+<link rel="stylesheet" href="static/assets/css/jquery.treegrid.css" />
+<style>
+    .table>tbody>tr>td{
+            padding: 10px;
+            line-height: 1.42857143;
+            vertical-align: top;
+            border-top: 1px solid #eee;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar %}
+    <li>
+        <a href="#"><i class="fa fa-bar-chart-o"></i> 部门设置<span class="fa arrow"></span></a>
+        <ul class="nav nav-second-level">
+            <li>
+                <a class="active-menu" href="{{ url_for('main.depart') }}">部门管理</a>
+            </li>
+            <li>
+                <a href="{{ url_for('main.employee') }}">员工管理</a>
+            </li>
+        </ul>
+    </li>
+{% endblock %}
+
+{% block content %}
+    <div id="page-wrapper" class="gray-bg dashbard-1">
+        <div class="content-main">
+             <div class="row">
+                <div class="col-md-12">
+                    <!-- Advanced Tables -->
+                    <div class="panel panel-default">
+                        <div class="panel-heading" style="text-align:right," >
+                            <button type="button" id="add_depart" class="btn btn-info"  data-toggle="modal" data-target="#myModal">
+                                <span class="glyphicon glyphicon-plus"></span> 新增部门
+                            </button>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <table id="treegrid" ></table>
+                        </div>
+                    </div>
+                </div>
+             </div>
+        </div>
+    </div>
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="font-weight: normal;">
+                <div class="modal-header" style="text-align:left">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">新增部门</h4>
+                </div>
+                <form role="form" class="form-horizontal" id="add_depart_form" data-toggle="validator">
+                    {{ add_depart_form.csrf_token }}
+                <div class="modal-body">
+                    {%for message in get_flashed_messages()%}
+                        <div class="alert alert-warning">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            {{message}}
+                        </div>
+                        {%endfor%}
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">部门名称</label>
+                        <div class="col-sm-8">
+                            {{add_depart_form.name(required="", class="form-control")}}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">上级部门</label>
+                        <div class="col-sm-8">
+                            {{add_depart_form.parent(required="", class="form-control")}}
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class = "btn btn-primary" onclick='addDepartment()'>保存</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="font-weight: normal;">
+                <div class="modal-header" style="text-align:left">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="updateModalLabel">修改部门</h4>
+                </div>
+                <form role="form" class="form-horizontal" id="update_depart_form" data-toggle="validator">
+                    {{ add_depart_form.csrf_token }}
+                <div class="modal-body">
+                    {%for message in get_flashed_messages()%}
+                        <div class="alert alert-warning">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            {{message}}
+                        </div>
+                        {%endfor%}
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">部门名称</label>
+                        <div class="col-sm-8">
+                            {{add_depart_form.name(required="", class="form-control")}}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">上级部门</label>
+                        <div class="col-sm-8">
+                            {{add_depart_form.parent(required="", class="form-control",autocomplete="off")}}
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class = "btn btn-primary" onclick='updateDepartment()'>保存</button>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!--//grid-->
+    <!---->
+    <div class="copy">
+        <p></p>
+    </div>
+{% endblock %}
+
+{% block bottom_js %}
+    <script src="static/assets/js/custom-scripts.js"></script>
+    <script src="static/assets/js/toastr.min.js"></script>
+    <script src="static/assets/js/treegrid/jquery.treegrid.min.js"></script>
+    <script src="static/assets/js/treegrid/jquery.treegrid.bootstrap3.js"></script>
+    <script src="static/assets/js/treegrid/jquery.treegrid.extension.js"></script>
+    <script>
+        depart_id="";
+        $(document).ready(function () {
+            init()
+        });
+        function init() {
+            $('#treegrid').treegridData({
+                id: 'id',
+                parentColumn: 'parentId',
+                type: "GET", //请求数据的ajax类型
+                url: '/depart/listJson',   //请求数据的ajax的url
+                ajaxParams: {}, //请求数据的ajax的data属性
+                expandColumn: null,//在哪一列上面显示展开按钮
+                //striped: true,   //是否各行渐变色
+                //bordered: true,  //是否显示边框
+                expandAll: true,  //是否全部展开
+                columns: [
+                    {
+                        title: '部门名称',
+                        field: 'name'
+                    },
+                    {
+                        title: '主管',
+                        field: 'director'
+                    },
+                    {
+                        title: '员工总数',
+                        field: 'count'
+                    },
+                    {
+                        title: '操作',
+                    }
+                ]
+            });
+        }
+
+         $("body").on('click',"#add_depart", function () {
+            var f = document.forms[0];        //获取表单DOM
+            f.reset();
+        })
+
+        function addDepartment(){
+        var form= new FormData(document.getElementById("add_depart_form"));
+        $.ajax({
+            url:"{{ url_for('main.depart_add') }}",
+            type:"post",
+            data:form,
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data){
+                if(data.result == 1){
+                    $("#myModal .btn-default").click();
+                    $("#treegrid").html("");
+                    init()
+                    toastr.success("新增部门成功")
+                }
+                else {
+                    var body = '<div class="alert alert-warning"> <button type="button" class="close" data-dismiss="alert">&times;</button>'+data.result+ '</div>'
+
+                    $('#add_depart_form .modal-body').prepend(body)
+                }
+
+            },
+            error:function(e){
+                toastr.success("新增部门失败")
+            }
+        })
+    }
+        function setId(id) {
+            depart_id=id;
+        }
+        function updateDepartment(){
+        var form= new FormData(document.getElementById("update_depart_form"));
+        $.ajax({
+            url:"/depart/update/"+depart_id,
+            type:"post",
+            data:form,
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data){
+                if(data.result == 1){
+                    $("#updateModal .btn-default").click();
+                    $("#treegrid").html("");
+                    init()
+                    toastr.success("修改部门成功")
+                }
+                else {
+                    var body = '<div class="alert alert-warning"> <button type="button" class="close" data-dismiss="alert">&times;</button>'+data.result+ '</div>'
+
+                    $('#add_depart_form .modal-body').prepend(body)
+                }
+
+            },
+            error:function(e){
+                toastr.success("新增部门失败")
+            }
+        })
+    }
+    $("body").on('click',".edit-btn", function () {
+        var button = $("#"+this.id);
+        var tr = button.parents("tr");
+        var tr_class = tr.attr('class');
+        var arr = tr_class.split(" ");
+        console.log(arr);
+        var val_name = $("."+arr[0]).children("td:first-child").text();
+        var val_parent = $("."+arr[1].replace(/-parent/,"")).children("td:first-child").text();
+
+        console.log(val_name,val_parent);
+
+        $("#update_depart_form #name").val(val_name);
+        $("#update_depart_form #parent option").filter(function(){return $(this).text()==val_parent;}).prop("selected",true);
+
+    });
+    </script>
+{% endblock %}
+

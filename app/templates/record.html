@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block head_js %}
+<link href="static/assets/js/dataTables/dataTables.bootstrap.css" rel="stylesheet" />
+<link rel="stylesheet" href="static/assets/css/bootstrap-datepicker3.css">
+<link rel="stylesheet" href="static/assets/css/component-chosen.min.css">
+<link rel="stylesheet" href="static/assets/css/toastr.min.css">
+<style>
+    ul { list-style-type: none;}
+    li { display: inline-block;}
+    input.labelauty + label { font: 12px "Microsoft Yahei";}
+    ul,li {margin:0;padding:0;}
+</style>
+{% endblock %}
+
+{% block sidebar %}
+                    <li>
+                        <a href="{{ url_for('main.index') }}"><i class="fa fa-dashboard"></i> 首页</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('main.customer') }}"><i class="fa fa-desktop"></i> 客户</a>
+                    </li>
+					<li>
+                        <a href="#"><i class="fa fa-bar-chart-o"></i> 合同<span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li>
+                                <a  href="{{ url_for('main.contract') }}">合同管理</a>
+                            </li>
+                            <li>
+                                <a class="active-menu" href="{{ url_for('main.record') }}">收费记录</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('main.todo') }}"><i class="fa fa-table"></i> 待办事项</a>
+                    </li>
+                    <li>
+                        <a href="empty.html"><i class="fa fa-fw fa-file"></i> 工作报告</a>
+                    </li>
+{% endblock %}
+
+{% block content %}
+<div id="page-wrapper" class="gray-bg dashbard-1">
+        <div class="content-main">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="dataTables">
+                                    <thead>
+                                        <tr>
+                                            <th>客户名称</th>
+                                            <th>金额</th>
+                                            <th>收款时间</th>
+                                            <th>说明</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <div class="modal fade" id="undoModal" tabindex="-1" role="dialog" aria-labelledby="undoModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width:350px">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>确定撤销该收费操作吗？</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-danger" onclick="undoRecord()">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+    </div>
+
+    <!--//grid-->
+    <!---->
+    <div class="copy">
+        <p></p>
+    </div>
+{% endblock %}
+
+{% block bottom_js %}
+    <script src="static/assets/js/dataTables/jquery.dataTables.js"></script>
+    <script src="static/assets/js/dataTables/dataTables.bootstrap.js"></script>
+    <script src="static/assets/js/custom-scripts.js"></script>
+    <script src="static/assets/js/toastr.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#dataTables').dataTable({
+                "oLanguage": {
+                 "sSearch":"请输入查找关键字： ",
+                "sLengthMenu": "每页显示 _MENU_ 条记录",
+                "sZeroRecords": "抱歉， 没有找到",
+                "sInfo": "从 _START_ 到 _END_ /共 _TOTAL_ 条数据",
+                "sInfoEmpty": "没有数据",
+                "sInfoFiltered": "(从 _MAX_ 条数据中检索)",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "前一页",
+                    "sNext": "后一页",
+                    "sLast": "尾页"
+                    }
+                },
+                "sDom": "lfrtip",
+                "iDisplayLength": 15,
+                'bStateSave': true,
+                "ajax": {
+                    url :  "/record/listJson" ,
+                    dataSrc: function (json) {
+                        return json.data;
+                    }
+                },
+
+                "columns": [
+                    {"data": "cus_name"},
+                    {"data": "charge"},
+                    {"data": "charge_date"},
+                    {"data": "description"},
+                    {
+                        "render": function(data, type,row) {
+                            var id = '"'+row.id+'"';
+                            console.log(id);
+                            var html="<div> <button type='button' class = 'btn btn-warning btn-sm' data-toggle='modal' data-target='#undoModal'" +
+                                        "onclick='setId("+id+")' style='font-size: 12px; padding: 2px 10px;' >撤销</button></div>";
+
+                            return html
+                    }}
+
+                ]
+            } );
+        });
+    </script>
+    <script>
+        record_id = "";
+        function setId(id) {
+            record_id = id;
+            console.log(record_id)
+        }
+
+        function undoRecord() {
+            $.ajax({
+            url:"{{ url_for('main.record_undo') }}",
+            type:"post",
+            data:JSON.stringify({"id":record_id}),
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data){
+                 if(data.result==1)
+                    toastr.success("收费撤销成功");
+                 else
+                     toastr.error("收费撤销失败");
+
+                $("#undoModal").find(".btn-default").click()
+                $("#dataTables").DataTable().ajax.reload();
+            },
+            error:function(e){
+                 toastr.warning("收费撤销异常");
+            }
+            })
+        }
+    </script>
+
+         <!-- Custom Js -->
+
+
+{% endblock %}
+
