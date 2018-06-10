@@ -803,7 +803,7 @@ def report_data():
     # 收费统计数据
     sum_char = db.session.query(func.sum(Record.charge)).scalar()
     sum_char = float(sum_char)
-    contractId = Contract.query.filter(Contract.id.in_(cuslist)).all()
+    contractId = Contract.query.filter(Contract.customer_id.in_(cuslist)).all()
 
     conlist = []
     for con in contractId:
@@ -819,8 +819,10 @@ def report_data():
     data['sum_con'] = sum_con
     data['user_con'] = user_con
     data['sum_char'] = sum_char
-
-    data['user_char'] = int(user_char)
+    if user_char:
+        data['user_char'] = int(user_char)
+    else:
+        data['user_char'] = 0
 
     jsonData = []
     jsonData.append(data)
