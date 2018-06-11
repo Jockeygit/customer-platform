@@ -9,7 +9,7 @@
   direction: ltr;
 }
 .datepicker-inline {
-  width: 220px;
+  padding: 4px;
 }
 .datepicker-rtl {
   direction: rtl;

@@ -165,7 +165,21 @@ class todolistFrom(FlaskForm):
 
     submit = SubmitField('保存')
 
+# 报告
+class reportForm(FlaskForm):
+    employee = SelectField('下属', coerce=int)
 
-
-
+    # 初始化下拉框
+    def __init__(self, *args, **kwargs):
+        super(reportForm, self).__init__(*args, **kwargs)
+        accountId = db.session.query(User.account_id).filter_by(id=current_user.id).first()[0]
+        positionId = db.session.query(Employee.position_id).filter_by(id=accountId).first()[0]
+        if (positionId == 1):
+            departmentId = db.session.query(Employee.department_id).filter_by(id=accountId).first()[0]
+            self.employee.choices = [(employee.id, employee.name)
+                                   for employee in Employee.query.order_by(Employee.department_id == departmentId).all()]
+        else:
+            self.employee.choices = [(employee.id, employee.name)
+                                     for employee in
+                                     Employee.query.order_by(Employee.id == accountId).all()]
 

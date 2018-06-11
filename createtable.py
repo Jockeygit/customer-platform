@@ -17,11 +17,10 @@ from app.model import *
 app = app.create_app('default')
 
 from app import db
-from app.model import Department, Position
 
 with app.app_context():
 
-    # db.create_all()
+     db.create_all()
      #db.drop_all()
 
      inbox = Category(name=u'收件箱')
@@ -35,5 +34,7 @@ with app.app_context():
      agreement1 = Agreement(name=u'代理记账', price=120)
      agreement2 = Agreement(name=u'代理报税', price=160)
      agreement3 = Agreement(name=u'代理注册', price=200)
-     db.session.add_all([inbox, done, employee, director, department, agreement1, agreement2, agreement3])
+
+     report1 = Report(content="hahahah", account_id=1)
+     db.session.add_all([inbox, done, director, employee, department, agreement1, agreement2, agreement3,report1])
      db.session.commit()

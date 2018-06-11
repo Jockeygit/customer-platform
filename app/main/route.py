@@ -13,7 +13,7 @@ from operator import and_, or_
 
 import xlwt as xlwt
 from flask import render_template, flash, url_for, request, jsonify, current_app, Response, send_from_directory
-from sqlalchemy import func
+from sqlalchemy import func,extract
 from sqlalchemy.testing import in_
 from werkzeug.utils import secure_filename
 from app.main import view, forms
@@ -24,6 +24,18 @@ from xlrd import open_workbook
 import json, time
 import os
 
+
+def to_dict(row):
+    """
+    将查询所得的行转化为字典
+    :param row:
+    :return:
+    """
+    d = {}
+    for column in row.__table__.columns:
+        d[column.name] = str(getattr(row, column.name))
+
+    return d
 
 # 首页
 @view.route('/index')
@@ -757,7 +769,8 @@ def emploee_list():
 @login_required
 def report():
     print(request.data)
-    return render_template('report.html')
+    form = forms.reportForm()
+    return render_template('report.html',form=form)
 
 
 @view.route('/report/data', methods=['GET'])
@@ -812,3 +825,69 @@ def report_data():
     jsondatar = json.dumps(jsonData, ensure_ascii=False)
     jsondatar = '{"data":' + jsondatar + "}"
     return jsondatar
+
+# 工作报告
+@view.route('/report/listJson', methods=['POST'])
+@login_required
+def report_list():
+    data = request.data
+    year = json.loads(data)['year']
+    month = json.loads(data)['month']
+    accountId = json.loads(data)['id']
+    if accountId == 0:
+        accountId = db.session.query(User.account_id).filter_by(id=current_user.id).first()[0]
+    reports = db.session.query(Report).filter(Report.account_id==accountId).filter(
+        and_(extract('month', Report.modify_time) == month, extract('year', Report.modify_time) == year)).order_by(Report.modify_time.desc())
+    count = db.session.query(Report).filter_by(account_id=accountId).count()
+    data = {}
+    data["data"] = []
+    for report in reports:
+        print(to_dict(report))
+        data["data"].append(to_dict(report))
+    if data["data"]:
+        data["result"] = 1
+    else:
+        data["result"] = 0
+    data["count"] = count
+    dateJson = json.dumps(data, ensure_ascii=False)
+    return dateJson
+
+@view.route('/report/query', methods=['POST'])
+@login_required
+def report_query():
+    data = request.data
+    date = json.loads(data)['date']
+    accountId = json.loads(data)['id']
+    if accountId == 0:
+        accountId = db.session.query(User.account_id).filter_by(id=current_user.id).first()[0]
+    report = db.session.query(Report).filter(Report.account_id==accountId).filter(
+        and_(Report.account_id==accountId, db.cast(Report.modify_time, db.DATE) == db.cast(date, db.DATE))).first()
+    return_data = {}
+    if report:
+        return_data["result"] = 1
+        return_data["data"] = to_dict(report)
+    else:
+        return_data["result"] = 0
+    print(json.dumps(return_data, ensure_ascii=False))
+    return json.dumps(return_data, ensure_ascii=False)
+
+@view.route('/report/update', methods=['POST'])
+@login_required
+def report_update():
+    data = request.data
+    content = json.loads(data)['content']
+    accountId = db.session.query(User.account_id).filter_by(id=current_user.id).first()[0]
+    report = db.session.query(Report).filter(
+        and_(Report.account_id == accountId,  db.cast(Report.modify_time, db.DATE) == db.cast(datetime.now(), db.DATE))).first()
+    print(report)
+    if report:
+        report.content = content
+        report.modify_time = datetime.now()
+    else:
+        report = Report(content=content, modify_time=datetime.now(), account_id=accountId)
+    try:
+        db.session.add(report)
+        db.session.commit()
+        return jsonify({'result': '1'})
+    except:
+        return jsonify({'result': '0'})

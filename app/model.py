@@ -152,16 +152,11 @@ class Category(db.Model):
     account_id = db.Column(db.Integer, db.ForeignKey('employee.id'))
     todolists = db.relationship('Todolist', backref='category')
 
-if __name__ == '__main__':
-    app = create_app('default')
-    with app.app_context():
-        db.create_all()
+#工作报告
+class Report(db.Model):
+    __tablename__ = "report"
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text(), nullable=False)
+    modify_time = db.Column(db.Date(), default=datetime.utcnow, onupdate=datetime.utcnow)
+    account_id = db.Column(db.Integer, db.ForeignKey('employee.id'))
 
-    #待办事项
-    inbox = Category(name=u'收件箱')
-    done = Category(name=u'已完成')
-    #职位
-    staff = Position(name=u'普通员工')
-    director = Position(name=u'主管')
-    db.session.add_all([inbox, done, staff, director])
-    db.session.commit()
