@@ -27,32 +27,36 @@
                 element: 'morris-bar-chart',
                 data: [{
                     y: '2018-01',
-                    a: 1000,
-                    b: 900
+                    a: 2500,
+                    b: 2100
                 }, {
                     y: '2018-02',
-                    a: 750,
-                    b: 650
+                    a: 2850,
+                    b: 2650
                 }, {
                     y: '2018-03',
-                    a: 500,
-                    b: 700
+                    a: 2200,
+                    b: 2700
                 }, {
                     y: '2018-04',
-                    a: 750,
-                    b: 650
+                    a: 2350,
+                    b: 2650
                 }, {
                     y: '2018-05',
-                    a: 500,
-                    b: 400
+                    a: 2500,
+                    b: 2400
                 }, {
                     y: '2018-06',
-                    a: 750,
-                    b: 750
+                    a: 2250,
+                    b: 2750
                 }],
                 xkey: 'y',
                 ykeys: ['a', 'b'],
                 labels: ['预收费', '实收费'],
+                barColors: [
+                '#A6A6A6','#2DAFCB',
+                '#67C69D'
+                 ],
                 hideHover: 'auto',
                 resize: true
             });
@@ -63,14 +67,18 @@
                 element: 'morris-donut-chart',
                 data: [{
                     label: "已完成",
-                    value: 12
+                    value: 4
                 }, {
                     label: "进行中",
-                    value: 9
+                    value: 6
                 }, {
                     label: "未开始",
-                    value: 6
+                    value: 3
                 }],
+                 colors: [
+                    '#A6A6A6','#2DAFCB',
+                    '#F98484'
+                 ],
                 resize: true
             });
 
@@ -109,7 +117,11 @@
                 ykeys: ['a', 'b'],
                 labels: ['预期增长量', '实际增长量'],
                 hideHover: 'auto',
-                resize: true
+                resize: true,
+                pointFillColors:['#ffffff'],
+                pointStrokeColors: ['black'],
+                lineColors:['gray','#2DAFCB']
+
             });
            
      
