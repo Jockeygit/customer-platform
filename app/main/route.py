@@ -68,6 +68,7 @@ def customer_add():
                             address=add_custom_form.address.data, account_id=add_custom_form.manager.data)
         db.session.add(customer)
         db.session.commit()
+
         return jsonify({'result': '1'})
     else:
         if add_custom_form.errors:
@@ -851,8 +852,9 @@ def report_list():
     year = json.loads(data)['year']
     month = json.loads(data)['month']
     accountId = json.loads(data)['id']
+    my_accountId = db.session.query(User.account_id).filter_by(id=current_user.id).first()[0]
     if accountId == 0:
-        accountId = db.session.query(User.account_id).filter_by(id=current_user.id).first()[0]
+        accountId = my_accountId
     reports = db.session.query(Report).filter(Report.account_id==accountId).filter(
         and_(extract('month', Report.modify_time) == month, extract('year', Report.modify_time) == year)).order_by(Report.modify_time.desc())
     count = db.session.query(Report).filter_by(account_id=accountId).count()
@@ -864,8 +866,10 @@ def report_list():
     if data["data"]:
         data["result"] = 1
     else:
-        data["result"] = 0
+        if accountId!=my_accountId or year!=datetime.now().year or month!=datetime.now().month:
+            data["result"] = 0
     data["count"] = count
+    data["user"] = my_accountId
     dateJson = json.dumps(data, ensure_ascii=False)
     return dateJson
 

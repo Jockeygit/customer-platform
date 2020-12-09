@@ -177,9 +177,6 @@ class reportForm(FlaskForm):
         if (positionId == 1):
             departmentId = db.session.query(Employee.department_id).filter_by(id=accountId).first()[0]
             self.employee.choices = [(employee.id, employee.name)
-                                   for employee in Employee.query.order_by(Employee.department_id == departmentId).all()]
+                        for employee in Employee.query.filter(Employee.department_id == departmentId).all()]
         else:
-            self.employee.choices = [(employee.id, employee.name)
-                                     for employee in
-                                     Employee.query.order_by(Employee.id == accountId).all()]
-
+            self.employee.choices = []

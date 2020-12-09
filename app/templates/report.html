@@ -100,6 +100,9 @@
                                 </div>
                             </div>
                         </div>
+                        <button type="button" id="my_report" class="btn btn-info" style="margin-bottom: 10px;margin-left: 10px;display:none">
+                            <span class="glyphicon glyphicon-plus" ></span> 返回我的报告
+                        </button>
                     </div>
                 </div>
                 <ul class="event_year col-md-2" style="margin-left: 50px" >
@@ -160,10 +163,12 @@
             success:function(data) {
                 var reports = data.data;
                 if (data.result == 1){
+                    my_account = data.user;
+                    if(account == 0) account = my_account
                     var div = $('<div></div>');
                     div.append('<h3 id="month">' + select_month + '月</h3>');
                     var lastday = reports[0];
-                    if(select_year == new Date().getFullYear() && select_month == new Date().getMonth()+1){
+                    if(select_year == new Date().getFullYear() && select_month == new Date().getMonth()+1 && account == my_account){
                         if (lastday.modify_time.split(/[- ]/)[2] == new Date().getDate()) {
                             div.append('<li class="li">\
                                     <span class="date">' + new Date().getDate() + '日</span>\
@@ -194,11 +199,19 @@
                     });
                     $(".event_list").html(div)
                     $("#count").text(data.count + '篇')
-                    CKEDITOR.replace('editor1');
                 }
                 else
                     toastr.error("该月没有报告");
 
+                if(account != my_account){
+                    var button= document.getElementById('my_report');
+                    button.style.display = "inline";
+                }
+                else{
+                    var button= document.getElementById('my_report');
+                    button.style.display = "none";
+                    CKEDITOR.replace('editor1');
+                }
             },
             error:function(e){
                 console.error("初始化失败");
@@ -294,10 +307,14 @@
         });
 
         $("body").on('click',"#form .btn-primary", function () {
-
             account = $("#employee").val();
             init()
             $("#myModal .btn-default").click()
+        });
+
+        $("body").on('click',"#my_report", function () {
+            account = my_account;
+            init()
         });
 
     </script>

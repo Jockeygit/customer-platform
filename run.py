@@ -21,10 +21,10 @@ from app.model import *
 from app import create_app
 app = create_app(os.getenv('config') or 'default')
 
-manager = Manager(app)
+# manager = Manager(app)  # Manager类追踪所有在命令行中调用的命令和处理过程的调用运行情况
 
-migrate = Migrate(app, db)
-manager.add_command('db', MigrateCommand)
+migrate = Migrate(app, db)  # 扩展数据库表结构
+# manager.add_command('db', MigrateCommand)
 
 if __name__ == "__main__":
-    manager.run()
+    app.run()   # Manager.run()启动Manager实例接收命令行中的命令

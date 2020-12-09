@@ -16,7 +16,7 @@ sys.path.append("..")
 from app import db, create_app
 from datetime import datetime
 
-
+# 用户表
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
@@ -144,6 +144,7 @@ class Todolist(db.Model):
     # account_id引用employee表的id
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
 
+# 待办事项分类表
 class Category(db.Model):
     __tablename__ = "category"
     id = db.Column(db.Integer, primary_key=True)
@@ -152,7 +153,7 @@ class Category(db.Model):
     account_id = db.Column(db.Integer, db.ForeignKey('employee.id'))
     todolists = db.relationship('Todolist', backref='category')
 
-#工作报告
+# 工作报告表
 class Report(db.Model):
     __tablename__ = "report"
     id = db.Column(db.Integer, primary_key=True)
@@ -160,3 +161,9 @@ class Report(db.Model):
     modify_time = db.Column(db.Date(), default=datetime.utcnow, onupdate=datetime.utcnow)
     account_id = db.Column(db.Integer, db.ForeignKey('employee.id'))
 
+# 测试表
+class Test(db.Model):
+    __tablename__ = "test"
+    id = db.Column(db.Integer, primary_key=True)
+    ower = db.Column(db.String(20), nullable=False, unique=True)
+    content = db.Column(db.String(30), nullable=False)
