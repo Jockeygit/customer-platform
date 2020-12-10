@@ -28,7 +28,7 @@
 
             if(data.sum_cus_per!=0){
                 var percent = Math.round(data.user_cus_per/data.sum_cus_per * 10000) / 100.00;
-                $("#easypiechart-personal span").text(percent+"%");
+                $("#easypiechart-personal span").text(parseInt(percent)+"%");
                 $("#easypiechart-personal").data('easyPieChart').update(percent);
             }
             if(data.sum_cus_com!=0){

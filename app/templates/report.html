@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+
+{% block head_js %}
+<link rel="stylesheet" href="static/assets/css/toastr.min.css">
+<link rel="stylesheet" href="static/assets/css/timeline.css">
+<link rel="stylesheet" href="static/assets/css/bootstrap-datepicker3.css">
+<style>
+    .date-inline {
+        position: absolute;
+        min-width: 160px;
+        padding: 5px 0;
+        background-color: #fff;
+        -webkit-background-clip: padding-box;
+        background-clip: padding-box;
+        border: 1px solid rgba(0,0,0,.15);
+        /*border-radius: 4px;
+        -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+        box-shadow: 0 6px 12px rgba(0,0,0,.175);*/
+    }
+    .my {
+        background-color: white;
+        padding: 10px 15px;
+        border: 1px solid rgba(0,0,0,.15);
+        border-bottom-width : 0;
+        margin-top: 5px;
+    }
+    .edit {
+        width: 650px;
+        text-align: left;
+        border-bottom: 2px solid #DDD;
+        padding: 10px 15px;
+        background: #FFF;
+        margin: 0;
+        display: block;
+        float: left;
+    }
+    .update{
+        float: right;
+        margin: 5px 0px 0px 0px;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar %}
+                    <li>
+                        <a href="{{ url_for('main.index') }}"><i class="fa fa-dashboard"></i> 首页</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('main.customer') }}"><i class="fa fa-desktop"></i> 客户</a>
+                    </li>
+					<li>
+                        <a href="#"><i class="fa fa-bar-chart-o"></i> 合同<span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li>
+                                <a  href="{{ url_for('main.contract') }}">合同管理</a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('main.record') }}">收费记录</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('main.todo') }}"><i class="fa fa-table"></i> 待办事项</a>
+                    </li>
+                    <li>
+                        <a class="active-menu" href="{{ url_for('main.report') }}"><i class="fa fa-fw fa-file"></i> 工作报告</a>
+                    </li>
+{% endblock %}
+
+{% block content %}
+<div id="page-wrapper" class="gray-bg dashbard-1">
+        <div class="content-main">
+            <div class="row">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <button type="button" id="add_customer" class="btn btn-info"  data-toggle="modal" data-target="#myModal" style="margin-bottom: 10px">
+                            <span class="glyphicon glyphicon-plus" ></span> 查看下属报告
+                        </button>
+                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content" style="font-weight: normal;">
+                                    <div class="modal-header" style="text-align:left">
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                        <h4 class="modal-title" id="myModalLabel">查看下属报告</h4>
+                                    </div>
+                                    <form role="form" class="form-horizontal" id="form" data-toggle="validator">
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label">选择下属</label>
+                                                    <div class="col-sm-8">
+                                                        {{form.employee(required="", class="form-control", id="employee")}}
+                                                    </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                            <button type="button" class = "btn btn-primary">确定</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" id="my_report" class="btn btn-info" style="margin-bottom: 10px;margin-left: 10px;display:none">
+                            <span class="glyphicon glyphicon-plus" ></span> 返回我的报告
+                        </button>
+                    </div>
+                </div>
+                <ul class="event_year col-md-2" style="margin-left: 50px" >
+                </ul>
+                <ul class="event_list col-md-7" style="padding-left: 0;">
+                </ul>
+                <div class="col-md-3" style="float: right;">
+                    <div>
+                        <div class="my"  >
+                            <span onclick="init()" style="cursor:pointer;">我的日志  :</span>
+                            <span style="float:right;" id="count">篇</span>
+                        </div>
+                        <div id="datepicker" class="date-inline" style="display: block;"> </div>
+                        <input type="hidden" id="my_hidden_input">
+
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+
+    <!--//grid-->
+    <!---->
+    <div class="copy">
+        <p></p>
+    </div>
+{% endblock %}
+
+{% block bottom_js %}
+    <script src="static/assets/js/ckeditor/ckeditor.js"></script>
+    <script src="static/assets/js/toastr.min.js"></script>
+    <script src="static/assets/js/bootstrap-datepicker.js"></script>
+    <script>
+        //CKEDITOR.replace( 'editor' );
+
+        $(document).ready(function () {
+            select_year = new Date().getFullYear();
+            select_month = new Date().getMonth()+1;
+            account = 0;
+            monthselect(select_year);
+            init();
+            var w =document.getElementById("datepicker").clientWidth;
+            $(".my").css("width",w);
+
+        });
+
+        function init() {
+            $.ajax({
+            url:"{{ url_for('main.report_list') }}",
+            type:"post",
+            data:JSON.stringify({"year":select_year,"month":select_month,"id":account}),
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data) {
+                var reports = data.data;
+                if (data.result == 1){
+                    my_account = data.user;
+                    if(account == 0) account = my_account
+                    var div = $('<div></div>');
+                    div.append('<h3 id="month">' + select_month + '月</h3>');
+                    var lastday = reports[0];
+                    if(select_year == new Date().getFullYear() && select_month == new Date().getMonth()+1 && account == my_account){
+                        if (lastday.modify_time.split(/[- ]/)[2] == new Date().getDate()) {
+                            div.append('<li class="li">\
+                                    <span class="date">' + new Date().getDate() + '日</span>\
+                                    <div class="p"><div class="edit">\
+                                    <textarea name="editor1">' + lastday.content + '</textarea>\
+                                    <button class="btn btn-info update" onclick="updateData()">修改</button>\
+                                    </div></div></li>')
+                            reports.shift()
+                        }
+                        else {
+                            div.append('<li class="li">\
+                                    <span class="date">' + new Date().getDate() + '日</span>\
+                                    <div class="p"><div class="edit">\
+                                    <textarea name="editor1"></textarea>\
+                                    <button class="btn btn-info update" onclick="updateData()">添加</button>\
+                                    </div></div></li>')
+                        }
+                    }
+                    reports.forEach(function (ele, index) {
+                        var time = ele.modify_time;
+                        var date = time.split(" ")[0];
+                        var day = date.split("-")[2];
+                        div.append('<li class="li">\
+                                <span class="date">' + day + '日</span>\
+                                <div class="p"><div class="span">' + ele.content + '</div></div>\
+                                </li>');
+                        console.log(date)
+                    });
+                    $(".event_list").html(div)
+                    $("#count").text(data.count + '篇')
+                }
+                else
+                    toastr.error("该月没有报告");
+
+                if(account != my_account){
+                    var button= document.getElementById('my_report');
+                    button.style.display = "inline";
+                }
+                else{
+                    var button= document.getElementById('my_report');
+                    button.style.display = "none";
+                    CKEDITOR.replace('editor1');
+                }
+            },
+            error:function(e){
+                console.error("初始化失败");
+            }
+        })
+        }
+        function selectDate() {
+            var date = $('#datepicker').datepicker('getFormattedDate');
+            console.log(JSON.stringify({"date":date}))
+            $.ajax({
+            url:"{{ url_for('main.report_query') }}",
+            type:"post",
+            data:JSON.stringify({"date":date,"id":account}),
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data){
+                var div = $('<div></div>');
+                if(data.result == 1){
+                    var report = data.data;
+
+                    div.append('<h3 id="month">'+report.modify_time.split(/[- ]/)[1]+'月</h3>');
+                    div.append('<li class="li">\
+                        <span class="date">'+report.modify_time.split(/[- ]/)[2]+'日</span>\
+                        <div class="p"><div class="span">'+report.content+'</div></div>\
+                        </li>');
+                    $(".event_list").html(div)
+                }
+                else {
+                    toastr.error("当日没有报告");
+                }
+
+            },
+            error:function(e){
+                console.error("选择日期失败");
+            }
+        })
+        }
+        function updateData() {
+            $.ajax({
+            url:"{{ url_for('main.report_update') }}",
+            type:"post",
+            data:JSON.stringify({"content":CKEDITOR.instances.editor1.getData()}),
+            dataType: 'json',
+            processData:false,
+            contentType:false,
+            success:function(data){
+                if(data.result == 1){
+                    toastr.success("修改成功");
+                }
+                else {
+                    toastr.error("修改失败");
+                }
+
+            },
+            error:function(e){
+                console.error("修改报告失败");
+            }
+        })
+        }
+        $('#datepicker').datepicker({
+            format:'yyyy-mm-dd',
+            todayHighlight: true,
+            language:"zh-cn",
+            endDate: new Date()
+        });
+        $('#datepicker').on('changeDate', function() {
+            selectDate()
+        });
+
+        function monthselect(year) {
+            var now_year = new Date().getFullYear();
+            var html = "";
+            if(year == now_year){
+                var now_month = new Date().getMonth()+1;
+                for(var i=1; i<now_month; i++){
+                    if(i==1)
+                        html = '<li style="border-bottom: 2px solid #DDD;"><label for="1">1</label></li>' + html;
+                    else
+                        html = '<li><label for="'+i+'">'+i+'</label></li>' + html;
+                }
+                html = '<li class="current"><label for="'+now_month+'">'+now_month+'</label></li>' + html;
+            }
+            $(".event_year").html(html)
+
+        }
+
+        $("body").on('click',".event_year li label", function () {
+            $('.event_year>li').removeClass('current');
+		    $(this).parent('li').addClass('current');
+            select_month = $(this).attr('for');
+            init()
+        });
+
+        $("body").on('click',"#form .btn-primary", function () {
+            account = $("#employee").val();
+            init()
+            $("#myModal .btn-default").click()
+        });
+
+        $("body").on('click',"#my_report", function () {
+            account = my_account;
+            init()
+        });
+
+    </script>
+
+{% endblock %}
+

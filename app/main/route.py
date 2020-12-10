@@ -13,7 +13,7 @@ from operator import and_, or_
 
 import xlwt as xlwt
 from flask import render_template, flash, url_for, request, jsonify, current_app, Response, send_from_directory
-from sqlalchemy import func
+from sqlalchemy import func,extract
 from sqlalchemy.testing import in_
 from werkzeug.utils import secure_filename
 from app.main import view, forms
@@ -24,6 +24,18 @@ from xlrd import open_workbook
 import json, time
 import os
 
+
+def to_dict(row):
+    """
+    将查询所得的行转化为字典
+    :param row:
+    :return:
+    """
+    d = {}
+    for column in row.__table__.columns:
+        d[column.name] = str(getattr(row, column.name))
+
+    return d
 
 # 首页
 @view.route('/index')
@@ -56,6 +68,7 @@ def customer_add():
                             address=add_custom_form.address.data, account_id=add_custom_form.manager.data)
         db.session.add(customer)
         db.session.commit()
+
         return jsonify({'result': '1'})
     else:
         if add_custom_form.errors:
@@ -92,10 +105,11 @@ def customer_import():
             row_date = sh.row_values(i)
             print(row_date)
             n = i - 1
-            #max_id = db.session.query(db.func.max(Customer.id)).scalar()
             customer = Customer()
-            #customer.id = max_id + 1
-            customer.name = row_date[0]
+            if Customer.query.filter(Customer.name == row_date[0]).first():
+                return jsonify({'result': "2"})
+            else:
+                customer.name = row_date[0]
             if row_date[1] == u"个人":
                 customer.type = 0
             else:
@@ -103,7 +117,11 @@ def customer_import():
             customer.phone = row_date[2]
             customer.email = row_date[3]
             customer.address = row_date[4]
-            manager_id = db.session.query(Employee.id).filter_by(name=row_date[5]).first()[0]
+            if Employee.query.filter(Employee.name ==row_date[5]).first():
+                manager_id = db.session.query(Employee.id).filter_by(name=row_date[5]).first()[0]
+            else:
+                print("客户经理不存在")
+                return jsonify({'result': "0"})
             customer.account_id = manager_id
             db.session.add(customer)
             db.session.commit()
@@ -647,22 +665,23 @@ def depart_list():
         if director:
             depdata['director'] = director.name
         else:
-            depdata['director'] = '-'
-        emp_count = db.session.query(Employee.id).filter(and_(Employee.department_id==department.id, Employee.position_id!=2)).count()
+            depdata['director'] = ' '
+        emp_count = db.session.query(Employee.id).filter(Employee.department_id == department.id).count()
+        # emp_count = db.session.query(Employee.id).filter(and_(Employee.department_id==department.id, Employee.position_id!=1)).count()
         depdata['count'] = emp_count
         if department.parent_id != department.id:
             depdata['parentId'] = department.parent_id
         jsonData.append(depdata)
     depnone = {}
     depnone['name'] = '未分配'
-    depnone['director'] = '-'
+    depnone['director'] = ' '
     depnone['id'] = 0
     emp_count = Employee.query.filter(Employee.department_id == None).count()
     depnone['count'] = emp_count
     jsonData.append(depnone)
 
     jsondatar = json.dumps(jsonData, ensure_ascii=False)
-    jsondatar = jsondatar.replace("null", '"-"')
+    jsondatar = jsondatar.replace("null", '" "')
     return jsondatar
 
 @view.route('/depart/add', methods=['POST'])
@@ -750,21 +769,36 @@ def emploee_list():
     jsondatar = '{"data":' + jsondatar + "}"
     return jsondatar
 
-
+@view.route('/employ/update/<id>', methods=['POST'])
+@login_required
+def emptyloy_update(id):
+    form = forms.employeeFrom()
+    if form.validate_on_submit():
+        employee = Employee.query.filter(Employee.id ==id).first()
+        employee.name = form.name.data
+        employee.department_id = form.department.data
+        employee.position_id = form.position.data
+        db.session.add(employee)
+        db.session.commit()
+        return jsonify({'result': '1'})
+    else:
+        if form.errors:
+            result = str(list(form.errors.values())[0]).strip("[]'")
+            return jsonify({'result': '%s' % result})
 
 # 工作报告
 @view.route('/report', methods=['GET', 'POST'])
 @login_required
 def report():
     print(request.data)
-    return render_template('report.html')
+    form = forms.reportForm()
+    return render_template('report.html',form=form)
 
 
 @view.route('/report/data', methods=['GET'])
 @login_required
 def report_data():
     # 客户统计数据
-    # sum_cus = db.session.query(Customer.account_id, func.count('*').label("cus_count")).group_by(Customer.account_id).all()
     accountId = db.session.query(User.account_id).filter_by(id=current_user.id).first()[0]
     sum_cus_per = db.session.query(func.count('*')).filter(and_(Customer.id > 0, Customer.type == 0)).scalar()
     user_cus_per = db.session.query(func.count('*')).filter(and_(Customer.account_id == accountId, Customer.type == 0)).scalar()
@@ -774,26 +808,21 @@ def report_data():
 
     # 合同统计数据
     sum_con = db.session.query(func.count('*')).filter(Contract.id > 0).scalar()
-    # customerId = db.session.query(Customer.id).filter_by(account_id=accountId).all()
     CustomerId = Customer.query.filter(Customer.account_id == accountId).all()
-    # user_con = db.session.query(func.count(Contract.id)).filter(Contract.customer_id.in_(customerId)).scalar()
     cuslist = []
     for cus in CustomerId:
         cuslist.append(cus.id)
     user_con = db.session.query(Contract.id).filter(Contract.customer_id.in_(cuslist)).count()
-    print('cuslist:' '%s' % cuslist)
+
     # 收费统计数据
     sum_char = db.session.query(func.sum(Record.charge)).scalar()
     sum_char = float(sum_char)
-    contractId = Contract.query.filter(Contract.id.in_(cuslist)).all()
-    print('合同:' '%s' % contractId)
+    contractId = Contract.query.filter(Contract.customer_id.in_(cuslist)).all()
+
     conlist = []
     for con in contractId:
         conlist.append(con.id)
-    print('客户:' '%s' % conlist)
     user_char = db.session.query(func.sum(Record.charge)).filter(Record.contract_id.in_(conlist)).scalar()
-    print('收费:' '%s' % user_char)
-    #user_char = float(user_char)
 
     data = {}
     data['sum_cus_per'] = sum_cus_per
@@ -804,11 +833,82 @@ def report_data():
     data['sum_con'] = sum_con
     data['user_con'] = user_con
     data['sum_char'] = sum_char
-
-    data['user_char'] = int(user_char)
+    if user_char:
+        data['user_char'] = int(user_char)
+    else:
+        data['user_char'] = 0
 
     jsonData = []
     jsonData.append(data)
     jsondatar = json.dumps(jsonData, ensure_ascii=False)
     jsondatar = '{"data":' + jsondatar + "}"
     return jsondatar
+
+# 工作报告
+@view.route('/report/listJson', methods=['POST'])
+@login_required
+def report_list():
+    data = request.data
+    year = json.loads(data)['year']
+    month = json.loads(data)['month']
+    accountId = json.loads(data)['id']
+    my_accountId = db.session.query(User.account_id).filter_by(id=current_user.id).first()[0]
+    if accountId == 0:
+        accountId = my_accountId
+    reports = db.session.query(Report).filter(Report.account_id==accountId).filter(
+        and_(extract('month', Report.modify_time) == month, extract('year', Report.modify_time) == year)).order_by(Report.modify_time.desc())
+    count = db.session.query(Report).filter_by(account_id=accountId).count()
+    data = {}
+    data["data"] = []
+    for report in reports:
+        print(to_dict(report))
+        data["data"].append(to_dict(report))
+    if data["data"]:
+        data["result"] = 1
+    else:
+        if accountId!=my_accountId or year!=datetime.now().year or month!=datetime.now().month:
+            data["result"] = 0
+    data["count"] = count
+    data["user"] = my_accountId
+    dateJson = json.dumps(data, ensure_ascii=False)
+    return dateJson
+
+@view.route('/report/query', methods=['POST'])
+@login_required
+def report_query():
+    data = request.data
+    date = json.loads(data)['date']
+    accountId = json.loads(data)['id']
+    if accountId == 0:
+        accountId = db.session.query(User.account_id).filter_by(id=current_user.id).first()[0]
+    report = db.session.query(Report).filter(Report.account_id==accountId).filter(
+        and_(Report.account_id==accountId, db.cast(Report.modify_time, db.DATE) == db.cast(date, db.DATE))).first()
+    return_data = {}
+    if report:
+        return_data["result"] = 1
+        return_data["data"] = to_dict(report)
+    else:
+        return_data["result"] = 0
+    print(json.dumps(return_data, ensure_ascii=False))
+    return json.dumps(return_data, ensure_ascii=False)
+
+@view.route('/report/update', methods=['POST'])
+@login_required
+def report_update():
+    data = request.data
+    content = json.loads(data)['content']
+    accountId = db.session.query(User.account_id).filter_by(id=current_user.id).first()[0]
+    report = db.session.query(Report).filter(
+        and_(Report.account_id == accountId,  db.cast(Report.modify_time, db.DATE) == db.cast(datetime.now(), db.DATE))).first()
+    print(report)
+    if report:
+        report.content = content
+        report.modify_time = datetime.now()
+    else:
+        report = Report(content=content, modify_time=datetime.now(), account_id=accountId)
+    try:
+        db.session.add(report)
+        db.session.commit()
+        return jsonify({'result': '1'})
+    except:
+        return jsonify({'result': '0'})
